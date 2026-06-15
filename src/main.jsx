@@ -181,6 +181,15 @@ function CalcLine({ label, keys, answer }) {
   );
 }
 
+function CalcSectionTitle({ title, note }) {
+  return (
+    <li className="calcSectionTitle">
+      <strong>{title}</strong>
+      <span>{note}</span>
+    </li>
+  );
+}
+
 function CalculatorGuide({ input, result }) {
   const sampleLeg = result.worstLeg;
   const utilization =
@@ -200,6 +209,10 @@ function CalculatorGuide({ input, result }) {
       </div>
 
       <ol className="calcLines">
+        <CalcSectionTitle
+          title="A. Data asas"
+          note="Berat total, R dan beban asas."
+        />
         <CalcLine
           label="1. Jumlah berat"
           keys={`${fmtWhole(input.loadKg)} + ${fmtWhole(input.riggingKg)} =`}
@@ -211,37 +224,70 @@ function CalculatorGuide({ input, result }) {
           answer={`${fmt(result.horizontalM, 3)} m`}
         />
         <CalcLine
-          label={`3. Tinggi ${sampleLeg.name}`}
+          label="3. Beban setiap sling"
+          keys={`${fmtWhole(result.totalKg)} / 4 =`}
+          answer={`${fmtWhole(result.verticalPerLegKg)} kg`}
+        />
+
+        <CalcSectionTitle
+          title="B. Cara kira degree"
+          note={`${sampleLeg.name}: tekan sin-1 dalam DEG.`}
+        />
+        <CalcLine
+          label={`4. Tinggi H ${sampleLeg.name}`}
           keys={`sqrt(${fmt(sampleLeg.slingLengthM, 3)}^2 - ${fmt(result.horizontalM, 3)}^2) =`}
           answer={`${fmt(sampleLeg.heightM, 3)} m`}
         />
         <CalcLine
-          label={`4. Sudut ${sampleLeg.name}`}
-          keys={`sin-1(${fmt(sampleLeg.heightM, 3)} / ${fmt(sampleLeg.slingLengthM, 3)}) =`}
+          label="5. Nisbah H / S"
+          keys={`${fmt(sampleLeg.heightM, 3)} / ${fmt(sampleLeg.slingLengthM, 3)} =`}
+          answer={fmt(sampleLeg.sinAngle, 4)}
+        />
+        <CalcLine
+          label="6. Degree"
+          keys={`sin-1(${fmt(sampleLeg.sinAngle, 4)}) =`}
           answer={`${fmt(sampleLeg.angleDeg, 2)} deg`}
         />
         <CalcLine
-          label="5. Angle factor"
+          label="7. Angle factor"
           keys={`1 / sin(${fmt(sampleLeg.angleDeg, 2)}) =`}
           answer={fmt(sampleLeg.angleFactor, 2)}
         />
         <CalcLine
-          label="6. Beban setiap sling"
-          keys={`${fmtWhole(result.totalKg)} / 4 =`}
-          answer={`${fmtWhole(result.verticalPerLegKg)} kg`}
-        />
-        <CalcLine
-          label={`7. Tension ${sampleLeg.name}`}
+          label={`8. Tension ${sampleLeg.name}`}
           keys={`${fmtWhole(result.verticalPerLegKg)} x ${fmt(sampleLeg.angleFactor, 2)} =`}
           answer={`${fmtWhole(sampleLeg.tensionKg)} kg`}
         />
         <CalcLine
-          label="8. Semak WLL"
+          label="9. Tukar ke tan"
+          keys={`${fmtWhole(sampleLeg.tensionKg)} / 1000 =`}
+          answer={`${fmt(sampleLeg.tensionKg / 1000, 2)} tan`}
+        />
+
+        <CalcSectionTitle
+          title="C. Semua kiraan sling"
+          note="Ulang untuk S1, S2, S3, S4."
+        />
+        {result.legs.map((leg, index) => (
+          <CalcLine
+            key={leg.name}
+            label={`${index + 1}. ${leg.name}`}
+            keys={`H=sqrt(${fmt(leg.slingLengthM, 3)}^2-${fmt(result.horizontalM, 3)}^2), deg=sin-1(H/${fmt(leg.slingLengthM, 3)}), T=${fmtWhole(result.verticalPerLegKg)} x ${fmt(leg.angleFactor, 2)}`}
+            answer={`${fmt(leg.angleDeg, 1)} deg | ${fmtWhole(leg.tensionKg)} kg`}
+          />
+        ))}
+
+        <CalcSectionTitle
+          title="D. Semakan akhir"
+          note="Bandingkan tension dengan WLL."
+        />
+        <CalcLine
+          label="WLL vs tension"
           keys={`${fmtWhole(input.wllKg)} - ${fmtWhole(result.maxTensionKg)} =`}
           answer={result.passed ? "LULUS" : "TIDAK LULUS"}
         />
         <CalcLine
-          label="9. Margin"
+          label="Margin"
           keys={`${fmtWhole(input.wllKg)} / ${fmtWhole(result.maxTensionKg)} =`}
           answer={`${fmt(result.minMargin, 2)} kali`}
         />
@@ -249,8 +295,8 @@ function CalculatorGuide({ input, result }) {
 
       <div className="calculatorNote">
         <span>Nota</span>
-        <p>Untuk sling lain, ulang step 3, 4 dan 6 sahaja. R guna nilai sama: {fmt(result.horizontalM, 3)} m. R^2 = {fmt(horizontalSquare, 3)}.</p>
-        <p>Utilization = {fmt(utilization, 1)}%. Pastikan calculator dalam DEG sebelum tekan sin atau sin-1.</p>
+        <p>Scientific calculator: tekan MODE DEG dahulu. Jangan guna RAD, sebab sin-1 perlu keluar jawapan dalam degree.</p>
+        <p>R guna nilai sama untuk semua sling: {fmt(result.horizontalM, 3)} m. R^2 = {fmt(horizontalSquare, 3)}. Utilization = {fmt(utilization, 1)}%.</p>
       </div>
     </section>
   );
@@ -269,7 +315,7 @@ function LiftingVisual({ input, result, setValue, setSlingLength }) {
       <div className="visualHeader">
         <div>
           <h2>Gambaran Angkat Container</h2>
-          <p>Hook tengah, 4-leg sling ke empat lifting point container.</p>
+          <p>Hook + 4-leg sling.</p>
         </div>
         <strong>{result.passed ? "Setup Lulus" : "Semak Setup"}</strong>
       </div>
