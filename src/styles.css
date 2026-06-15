@@ -646,11 +646,157 @@ input {
   transform-origin: center;
 }
 
+.sheetInputsOverlay {
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.sheetInputSpot {
+  background: #fffdf2;
+  border: 1.5px solid #111111;
+  box-shadow: 4px 4px 0 rgba(17, 17, 17, 0.14);
+  min-width: 0;
+  padding: 5px;
+  pointer-events: auto;
+  position: absolute;
+  width: clamp(92px, 10.5vw, 138px);
+  z-index: 3;
+}
+
+.sheetInputSpot::before {
+  background: #111111;
+  content: "";
+  height: 1.5px;
+  position: absolute;
+  width: 42px;
+}
+
+.sheetInputSpot .miniInput {
+  min-width: 0;
+}
+
+.sheetInputSpot .miniInput span {
+  color: #111111;
+  font-size: 0.62rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.sheetInputSpot .miniInput div {
+  border-color: #111111;
+  border-radius: 0;
+  grid-template-columns: minmax(36px, 1fr) auto;
+}
+
+.sheetInputSpot .miniInput input,
+.sheetInputSpot .miniInput b {
+  font-size: 0.68rem;
+  padding: 4px 5px;
+}
+
+.sheetInputSpot .miniInput b {
+  background: #f2f2f2;
+  border-left-color: #111111;
+  color: #111111;
+}
+
+.sheetLoadInput {
+  left: 42%;
+  top: 71%;
+  transform: translateX(-50%);
+  width: clamp(112px, 13vw, 160px);
+}
+
+.sheetLoadInput::before {
+  left: 100%;
+  top: 50%;
+}
+
+.sheetRiggingInput {
+  left: 50%;
+  top: 18%;
+  transform: translateX(-50%);
+  width: clamp(112px, 13vw, 160px);
+}
+
+.sheetRiggingInput::before {
+  height: 32px;
+  left: 50%;
+  top: 100%;
+  width: 1.5px;
+}
+
+.sheetSlingInput1 {
+  left: 16%;
+  top: 36%;
+}
+
+.sheetSlingInput1::before,
+.sheetSlingInput3::before {
+  left: 100%;
+  top: 50%;
+}
+
+.sheetSlingInput2 {
+  right: 16%;
+  top: 36%;
+}
+
+.sheetSlingInput2::before,
+.sheetSlingInput4::before {
+  right: 100%;
+  top: 50%;
+}
+
+.sheetSlingInput3 {
+  left: 28%;
+  top: 52%;
+}
+
+.sheetSlingInput4 {
+  right: 28%;
+  top: 52%;
+}
+
+.sheetLengthInput {
+  left: 49%;
+  top: 87%;
+  transform: translateX(-50%);
+}
+
+.sheetLengthInput::before {
+  height: 26px;
+  left: 50%;
+  top: -26px;
+  width: 1.5px;
+}
+
+.sheetWidthInput {
+  left: 3%;
+  top: 66%;
+}
+
+.sheetWidthInput::before {
+  left: 100%;
+  top: 50%;
+}
+
+.sheetWllInput {
+  right: 4%;
+  top: 62%;
+}
+
+.sheetWllInput::before {
+  right: 100%;
+  top: 50%;
+}
+
 .sheetInputGrid {
   background: rgba(255, 255, 255, 0.96);
   border: 1px solid #111111;
   bottom: 10px;
-  display: grid;
+  display: none;
   gap: 6px;
   grid-template-columns: repeat(3, minmax(70px, 1fr));
   left: 10px;
@@ -1033,7 +1179,12 @@ dd {
     min-height: 300px;
   }
 
+  .sheetInputsOverlay {
+    display: none;
+  }
+
   .sheetInputGrid {
+    display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     max-width: none;
     position: static;

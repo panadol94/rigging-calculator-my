@@ -285,6 +285,34 @@ function EngineeringSheet({ input, result, setValue, setSlingLength }) {
               <text className="sheetDimText verticalText" x="110" y="425">{fmt(input.widthM, 3)} M</text>
             </svg>
 
+            <div className="sheetInputsOverlay" aria-label="Input dalam gambar calculation sheet">
+              <div className="sheetInputSpot sheetLoadInput">
+                <MiniInput label="Input Beban" suffix="kg" value={input.loadKg} onChange={setValue("loadKg")} step="1" />
+              </div>
+              <div className="sheetInputSpot sheetRiggingInput">
+                <MiniInput label="Input Rigging" suffix="kg" value={input.riggingKg} onChange={setValue("riggingKg")} step="1" />
+              </div>
+              {input.slingLengthsM.map((value, index) => (
+                <div className={`sheetInputSpot sheetSlingInput sheetSlingInput${index + 1}`} key={slingNames[index]}>
+                  <MiniInput
+                    label={`Input S${index + 1}`}
+                    suffix="m"
+                    value={value}
+                    onChange={setSlingLength(index)}
+                  />
+                </div>
+              ))}
+              <div className="sheetInputSpot sheetLengthInput">
+                <MiniInput label="Input L" suffix="m" value={input.lengthM} onChange={setValue("lengthM")} />
+              </div>
+              <div className="sheetInputSpot sheetWidthInput">
+                <MiniInput label="Input d" suffix="m" value={input.widthM} onChange={setValue("widthM")} />
+              </div>
+              <div className="sheetInputSpot sheetWllInput">
+                <MiniInput label="Input WLL" suffix="kg" value={input.wllKg} onChange={setValue("wllKg")} step="1" />
+              </div>
+            </div>
+
             <div className="sheetInputGrid">
               <MiniInput label="Beban" suffix="kg" value={input.loadKg} onChange={setValue("loadKg")} step="1" />
               <MiniInput label="Rigging" suffix="kg" value={input.riggingKg} onChange={setValue("riggingKg")} step="1" />
