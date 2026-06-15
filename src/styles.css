@@ -1286,7 +1286,6 @@ dd {
     position: absolute;
   }
 
-  .loadGroup,
   .containerInput {
     grid-template-columns: repeat(3, minmax(0, auto));
   }
