@@ -460,8 +460,8 @@ function LiftingVisual({ input, result, setValue, setSlingLength }) {
 
         <div className="visualInputs">
           <div className="visualGroup loadGroup">
-            <DiagramInput label="W / Beban" suffix="kg" value={input.loadKg} onChange={setValue("loadKg")} step="1" tone="light" />
-            <DiagramInput label="Wh / Rigging" suffix="kg" value={input.riggingKg} onChange={setValue("riggingKg")} step="1" tone="light" />
+            <DiagramInput label="W" suffix="kg" value={input.loadKg} onChange={setValue("loadKg")} step="1" tone="light" />
+            <DiagramInput label="Wh" suffix="kg" value={input.riggingKg} onChange={setValue("riggingKg")} step="1" tone="light" />
           </div>
 
           {input.slingLengthsM.map((value, index) => (
@@ -473,13 +473,12 @@ function LiftingVisual({ input, result, setValue, setSlingLength }) {
                 onChange={setSlingLength(index)}
                 tone="light"
               />
-              <span>{fmtWhole(result.legs[index].tensionKg)} kg</span>
             </div>
           ))}
 
           <div className="visualGroup containerInput">
             <DiagramInput label="L" suffix="m" value={input.lengthM} onChange={setValue("lengthM")} tone="light" />
-            <DiagramInput label="d" suffix="m" value={input.widthM} onChange={setValue("widthM")} tone="light" />
+            <DiagramInput label="D" suffix="m" value={input.widthM} onChange={setValue("widthM")} tone="light" />
             <DiagramInput label="WLL" suffix="kg" value={input.wllKg} onChange={setValue("wllKg")} step="1" tone="light" />
           </div>
         </div>

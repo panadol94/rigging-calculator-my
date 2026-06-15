@@ -248,6 +248,7 @@ input[type="number"] {
   background:
     linear-gradient(180deg, #f8fbfc 0%, #eef4f6 62%, #d7e1e5 62%, #d7e1e5 100%);
   min-height: 330px;
+  overflow: hidden;
   position: relative;
 }
 
@@ -387,8 +388,27 @@ input[type="number"] {
   position: absolute;
 }
 
+.visualStage .diagramInput {
+  gap: 3px;
+}
+
+.visualStage .diagramInput span:first-child {
+  font-size: clamp(0.52rem, 0.82vw, 0.66rem);
+}
+
+.visualStage .diagramValue input {
+  font-size: clamp(0.62rem, 1vw, 0.78rem);
+  min-width: 4.8ch;
+  width: 4.8ch;
+}
+
+.visualStage .diagramValue b {
+  font-size: clamp(0.48rem, 0.76vw, 0.6rem);
+}
+
 .visualGroup > span {
   color: #101820;
+  display: none;
   font-size: 0.68rem;
   font-weight: 800;
   text-align: center;
@@ -400,11 +420,11 @@ input[type="number"] {
 }
 
 .loadGroup {
-  column-gap: clamp(88px, 18vw, 150px);
-  grid-template-columns: repeat(2, max-content);
-  left: 50%;
+  display: flex;
+  justify-content: space-between;
+  left: 12%;
+  right: 12%;
   top: 18%;
-  transform: translateX(-50%);
 }
 
 .slingOneInput {
@@ -1404,6 +1424,47 @@ dd {
 
   .diagramValue b {
     font-size: 0.62rem;
+  }
+
+  .visualStage .diagramInput span:first-child {
+    font-size: 0.62rem;
+  }
+
+  .visualStage .diagramValue input {
+    font-size: 0.74rem;
+    min-width: 4.6ch;
+    width: 4.6ch;
+  }
+
+  .visualStage .diagramValue b {
+    font-size: 0.54rem;
+  }
+
+  .loadGroup {
+    left: 7%;
+    right: 24%;
+  }
+
+  .slingOneInput {
+    left: 5%;
+  }
+
+  .slingTwoInput {
+    right: 18%;
+  }
+
+  .slingThreeInput {
+    left: 7%;
+  }
+
+  .slingFourInput {
+    right: 18%;
+  }
+
+  .sheetLengthInput,
+  .sheetWidthInput,
+  .sheetWllInput {
+    display: none;
   }
 
   .sheetLoadInput {
