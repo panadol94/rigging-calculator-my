@@ -11,10 +11,12 @@ import {
 } from "lucide-react";
 import "./styles.css";
 
+const slingNames = ["Sling 1", "Sling 2", "Sling 3", "Sling 4"];
+
 const defaults = {
   loadKg: 6000,
   riggingKg: 2000,
-  slingLengthM: 0.6,
+  slingLengthsM: [0.6, 0.6, 0.6, 0.6],
   lengthM: 0.3,
   widthM: 0.3,
   wllKg: 3250,
@@ -40,33 +42,63 @@ function fmtWhole(value) {
   }).format(value);
 }
 
-function calc(input) {
-  const totalKg = input.loadKg + input.riggingKg;
-  const horizontalM = Math.sqrt(input.lengthM ** 2 + input.widthM ** 2);
-  const heightSquared = input.slingLengthM ** 2 - horizontalM ** 2;
+function calcLeg(name, slingLengthM, horizontalM, verticalPerLegKg, wllKg) {
+  const heightSquared = slingLengthM ** 2 - horizontalM ** 2;
   const heightM = heightSquared >= 0 ? Math.sqrt(heightSquared) : NaN;
-  const sinAngle = heightM / input.slingLengthM;
+  const sinAngle = heightM / slingLengthM;
   const angleDeg =
     Number.isFinite(sinAngle) && sinAngle >= -1 && sinAngle <= 1
       ? (Math.asin(sinAngle) * 180) / Math.PI
       : NaN;
-  const verticalPerLegKg = totalKg / 4;
-  const tensionKg = verticalPerLegKg / Math.sin((angleDeg * Math.PI) / 180);
-  const margin = input.wllKg / tensionKg;
+  const sinTheta = Math.sin((angleDeg * Math.PI) / 180);
+  const tensionKg = verticalPerLegKg / sinTheta;
+  const margin = wllKg / tensionKg;
+  const geometryOk = heightSquared >= 0 && slingLengthM > 0;
 
   return {
-    totalKg,
-    horizontalM,
+    name,
+    slingLengthM,
     heightSquared,
     heightM,
     sinAngle,
     angleDeg,
-    verticalPerLegKg,
+    sinTheta,
     tensionKg,
     margin,
-    passed:
-      Number.isFinite(tensionKg) && input.wllKg > 0 && input.wllKg >= tensionKg,
-    geometryOk: heightSquared >= 0 && input.slingLengthM > 0,
+    geometryOk,
+    passed: geometryOk && Number.isFinite(tensionKg) && wllKg >= tensionKg,
+  };
+}
+
+function calc(input) {
+  const totalKg = input.loadKg + input.riggingKg;
+  const horizontalM = Math.sqrt(input.lengthM ** 2 + input.widthM ** 2);
+  const verticalPerLegKg = totalKg / 4;
+  const legs = input.slingLengthsM.map((length, index) =>
+    calcLeg(slingNames[index], length, horizontalM, verticalPerLegKg, input.wllKg),
+  );
+  const validTensions = legs
+    .map((leg) => leg.tensionKg)
+    .filter((value) => Number.isFinite(value));
+  const maxTensionKg = validTensions.length ? Math.max(...validTensions) : NaN;
+  const minMargin = Math.min(
+    ...legs.map((leg) => leg.margin).filter((value) => Number.isFinite(value)),
+  );
+  const worstLeg =
+    legs.find((leg) => leg.tensionKg === maxTensionKg) ?? legs.find((leg) => !leg.geometryOk) ?? legs[0];
+  const allGeometryOk = legs.every((leg) => leg.geometryOk);
+  const passed = allGeometryOk && legs.every((leg) => leg.passed);
+
+  return {
+    totalKg,
+    horizontalM,
+    verticalPerLegKg,
+    legs,
+    worstLeg,
+    maxTensionKg,
+    minMargin,
+    allGeometryOk,
+    passed,
   };
 }
 
@@ -100,6 +132,43 @@ function ResultPill({ label, value }) {
   );
 }
 
+function SlingCard({ leg, verticalPerLegKg, wllKg }) {
+  return (
+    <article className={`slingCard ${leg.passed ? "ok" : "bad"}`}>
+      <div className="slingHead">
+        <h3>{leg.name}</h3>
+        <strong>{leg.passed ? "LULUS" : leg.geometryOk ? "TIDAK LULUS" : "SEMAK"}</strong>
+      </div>
+      <dl>
+        <div>
+          <dt>Panjang S</dt>
+          <dd>{fmt(leg.slingLengthM, 3)} m</dd>
+        </div>
+        <div>
+          <dt>Tinggi H</dt>
+          <dd>{fmt(leg.heightM, 3)} m</dd>
+        </div>
+        <div>
+          <dt>Sudut</dt>
+          <dd>{fmt(leg.angleDeg, 1)} deg</dd>
+        </div>
+        <div>
+          <dt>Beban menegak</dt>
+          <dd>{fmtWhole(verticalPerLegKg)} kg</dd>
+        </div>
+        <div>
+          <dt>Tension</dt>
+          <dd>{fmtWhole(leg.tensionKg)} kg</dd>
+        </div>
+        <div>
+          <dt>Margin WLL</dt>
+          <dd>{fmt(wllKg / leg.tensionKg, 2)} kali</dd>
+        </div>
+      </dl>
+    </article>
+  );
+}
+
 function Step({ number, title, formula, children }) {
   return (
     <section className="step">
@@ -116,14 +185,23 @@ function Step({ number, title, formula, children }) {
 function App() {
   const [input, setInput] = useState(defaults);
   const result = useMemo(() => calc(input), [input]);
+  const sampleLeg = result.worstLeg;
 
   const setValue = (key) => (value) => {
     setInput((current) => ({ ...current, [key]: value }));
   };
 
+  const setSlingLength = (index) => (value) => {
+    setInput((current) => {
+      const slingLengthsM = [...current.slingLengthsM];
+      slingLengthsM[index] = value;
+      return { ...current, slingLengthsM };
+    });
+  };
+
   const warning =
-    !result.geometryOk &&
-    "Panjang sling terlalu pendek untuk jarak mendatar ini. Naikkan panjang sling atau kecilkan jarak lifting point.";
+    !result.allGeometryOk &&
+    "Ada sling yang terlalu pendek untuk jarak mendatar ini. Naikkan panjang sling atau kecilkan jarak lifting point.";
 
   return (
     <main>
@@ -160,13 +238,16 @@ function App() {
               onChange={setValue("riggingKg")}
               step="1"
             />
-            <Field
-              icon={Ruler}
-              label="Panjang sling, S"
-              suffix="m"
-              value={input.slingLengthM}
-              onChange={setValue("slingLengthM")}
-            />
+            {input.slingLengthsM.map((value, index) => (
+              <Field
+                key={slingNames[index]}
+                icon={Ruler}
+                label={`${slingNames[index]} panjang, S${index + 1}`}
+                suffix="m"
+                value={value}
+                onChange={setSlingLength(index)}
+              />
+            ))}
             <Field
               icon={Ruler}
               label="Jarak arah panjang, L"
@@ -196,9 +277,9 @@ function App() {
           <div className={`status ${result.passed ? "pass" : "fail"}`}>
             {result.passed ? <CheckCircle2 size={24} /> : <AlertTriangle size={24} />}
             <div>
-              <span>Status semakan WLL</span>
+              <span>Status semua sling</span>
               <strong>
-                {result.passed ? "LULUS" : result.geometryOk ? "TIDAK LULUS" : "SEMAK INPUT"}
+                {result.passed ? "SEMUA LULUS" : result.allGeometryOk ? "ADA TIDAK LULUS" : "SEMAK INPUT"}
               </strong>
             </div>
           </div>
@@ -208,16 +289,27 @@ function App() {
           <div className="summary">
             <ResultPill label="Jumlah berat" value={`${fmtWhole(result.totalKg)} kg`} />
             <ResultPill label="Jarak mendatar" value={`${fmt(result.horizontalM, 3)} m`} />
-            <ResultPill label="Tinggi hook" value={`${fmt(result.heightM, 3)} m`} />
-            <ResultPill label="Sudut sling" value={`${fmt(result.angleDeg, 1)} deg`} />
-            <ResultPill label="Tension / leg" value={`${fmtWhole(result.tensionKg)} kg`} />
-            <ResultPill label="Margin WLL" value={`${fmt(result.margin, 2)} kali`} />
+            <ResultPill label="Beban / sling" value={`${fmtWhole(result.verticalPerLegKg)} kg`} />
+            <ResultPill label="Tension tertinggi" value={`${fmtWhole(result.maxTensionKg)} kg`} />
+            <ResultPill label="Sling paling berat" value={sampleLeg.name} />
+            <ResultPill label="Margin terendah" value={`${fmt(result.minMargin, 2)} kali`} />
           </div>
+
+          <section className="slingGrid" aria-label="Result setiap sling">
+            {result.legs.map((leg) => (
+              <SlingCard
+                key={leg.name}
+                leg={leg}
+                verticalPerLegKg={result.verticalPerLegKg}
+                wllKg={input.wllKg}
+              />
+            ))}
+          </section>
 
           <section className="report">
             <div className="reportTitle">
               <h2>Jalan Kiraan Lengkap</h2>
-              <p>Format ini ikut cara tekan scientific calculator.</p>
+              <p>Contoh detail ikut sling paling tinggi tension: {sampleLeg.name}.</p>
             </div>
 
             <Step number="1" title="Kira jumlah berat" formula="Jumlah Berat = Berat Beban + Berat Rigging">
@@ -226,7 +318,7 @@ function App() {
               <p>Dalam tan: {fmtWhole(result.totalKg)} / 1,000 = {fmt(result.totalKg / 1000, 2)} tan</p>
             </Step>
 
-            <Step number="2" title="Kira jarak mendatar 3D setiap leg" formula="R = sqrt(L^2 + d^2)">
+            <Step number="2" title="Kira jarak mendatar 3D setiap sling" formula="R = sqrt(L^2 + d^2)">
               <p>R = sqrt({fmt(input.lengthM, 3)}^2 + {fmt(input.widthM, 3)}^2)</p>
               <p>{fmt(input.lengthM, 3)}^2 = {fmt(input.lengthM ** 2, 3)}</p>
               <p>{fmt(input.widthM, 3)}^2 = {fmt(input.widthM ** 2, 3)}</p>
@@ -234,43 +326,52 @@ function App() {
               <p>sqrt({fmt(input.lengthM ** 2 + input.widthM ** 2, 3)}) = {fmt(result.horizontalM, 3)} m</p>
             </Step>
 
-            <Step number="3" title="Kira tinggi hook ke lifting point" formula="H = sqrt(S^2 - R^2)">
-              <p>H = sqrt({fmt(input.slingLengthM, 3)}^2 - {fmt(result.horizontalM, 3)}^2)</p>
-              <p>{fmt(input.slingLengthM, 3)}^2 = {fmt(input.slingLengthM ** 2, 3)}</p>
+            <Step number="3" title={`Kira tinggi ${sampleLeg.name}`} formula="H = sqrt(S^2 - R^2)">
+              <p>H = sqrt({fmt(sampleLeg.slingLengthM, 3)}^2 - {fmt(result.horizontalM, 3)}^2)</p>
+              <p>{fmt(sampleLeg.slingLengthM, 3)}^2 = {fmt(sampleLeg.slingLengthM ** 2, 3)}</p>
               <p>{fmt(result.horizontalM, 3)}^2 = {fmt(result.horizontalM ** 2, 3)}</p>
-              <p>{fmt(input.slingLengthM ** 2, 3)} - {fmt(result.horizontalM ** 2, 3)} = {fmt(result.heightSquared, 3)}</p>
-              <p>sqrt({fmt(result.heightSquared, 3)}) = {fmt(result.heightM, 3)} m</p>
+              <p>{fmt(sampleLeg.slingLengthM ** 2, 3)} - {fmt(result.horizontalM ** 2, 3)} = {fmt(sampleLeg.heightSquared, 3)}</p>
+              <p>sqrt({fmt(sampleLeg.heightSquared, 3)}) = {fmt(sampleLeg.heightM, 3)} m</p>
             </Step>
 
-            <Step number="4" title="Kira sudut sling dari horizontal" formula="theta = sin^-1(H / S)">
-              <p>theta = sin^-1({fmt(result.heightM, 3)} / {fmt(input.slingLengthM, 3)})</p>
-              <p>{fmt(result.heightM, 3)} / {fmt(input.slingLengthM, 3)} = {fmt(result.sinAngle, 4)}</p>
-              <p>sin^-1({fmt(result.sinAngle, 4)}) = {fmt(result.angleDeg, 2)} deg</p>
+            <Step number="4" title={`Kira sudut ${sampleLeg.name} dari horizontal`} formula="theta = sin^-1(H / S)">
+              <p>theta = sin^-1({fmt(sampleLeg.heightM, 3)} / {fmt(sampleLeg.slingLengthM, 3)})</p>
+              <p>{fmt(sampleLeg.heightM, 3)} / {fmt(sampleLeg.slingLengthM, 3)} = {fmt(sampleLeg.sinAngle, 4)}</p>
+              <p>sin^-1({fmt(sampleLeg.sinAngle, 4)}) = {fmt(sampleLeg.angleDeg, 2)} deg</p>
               <p className="note">Pastikan scientific calculator berada dalam mode DEG, bukan RAD.</p>
             </Step>
 
-            <Step number="5" title="Kira beban menegak setiap leg" formula="Beban Setiap Leg = Jumlah Berat / 4">
-              <p>Beban setiap leg = {fmtWhole(result.totalKg)} / 4</p>
+            <Step number="5" title="Kira beban menegak setiap sling" formula="Beban Setiap Sling = Jumlah Berat / 4">
+              <p>Beban setiap sling = {fmtWhole(result.totalKg)} / 4</p>
               <p>{fmtWhole(result.totalKg)} / 4 = {fmtWhole(result.verticalPerLegKg)} kg</p>
             </Step>
 
-            <Step number="6" title="Kira tension sebenar setiap sling" formula="Tension = Beban Setiap Leg / sin(theta)">
-              <p>Tension = {fmtWhole(result.verticalPerLegKg)} / sin({fmt(result.angleDeg, 2)})</p>
-              <p>sin({fmt(result.angleDeg, 2)}) = {fmt(Math.sin((result.angleDeg * Math.PI) / 180), 4)}</p>
-              <p>{fmtWhole(result.verticalPerLegKg)} / {fmt(Math.sin((result.angleDeg * Math.PI) / 180), 4)} = {fmtWhole(result.tensionKg)} kg</p>
-              <p>Dalam tan: {fmtWhole(result.tensionKg)} / 1,000 = {fmt(result.tensionKg / 1000, 2)} tan</p>
+            <Step number="6" title={`Kira tension sebenar ${sampleLeg.name}`} formula="Tension = Beban Setiap Sling / sin(theta)">
+              <p>Tension = {fmtWhole(result.verticalPerLegKg)} / sin({fmt(sampleLeg.angleDeg, 2)})</p>
+              <p>sin({fmt(sampleLeg.angleDeg, 2)}) = {fmt(sampleLeg.sinTheta, 4)}</p>
+              <p>{fmtWhole(result.verticalPerLegKg)} / {fmt(sampleLeg.sinTheta, 4)} = {fmtWhole(sampleLeg.tensionKg)} kg</p>
+              <p>Dalam tan: {fmtWhole(sampleLeg.tensionKg)} / 1,000 = {fmt(sampleLeg.tensionKg / 1000, 2)} tan</p>
             </Step>
 
-            <Step number="7" title="Semak WLL sling" formula="WLL Sling >= Tension Sebenar">
+            <Step number="7" title="Result Sling 1, Sling 2, Sling 3, Sling 4" formula="Kiraan yang sama dibuat untuk setiap sling">
+              {result.legs.map((leg) => (
+                <p key={leg.name}>
+                  {leg.name}: S = {fmt(leg.slingLengthM, 3)} m, H = {fmt(leg.heightM, 3)} m, sudut = {fmt(leg.angleDeg, 2)} deg,
+                  tension = {fmtWhole(leg.tensionKg)} kg, status = {leg.passed ? "LULUS" : leg.geometryOk ? "TIDAK LULUS" : "SEMAK"}
+                </p>
+              ))}
+            </Step>
+
+            <Step number="8" title="Semak WLL sling" formula="WLL Sling >= Tension Sebenar">
               <p>WLL sling = {fmtWhole(input.wllKg)} kg</p>
-              <p>Tension sebenar = {fmtWhole(result.tensionKg)} kg</p>
-              <p>{fmtWhole(input.wllKg)} {result.passed ? ">=" : "<"} {fmtWhole(result.tensionKg)}</p>
-              <p>Status: {result.passed ? "LULUS" : "TIDAK LULUS"}</p>
+              <p>Tension tertinggi = {fmtWhole(result.maxTensionKg)} kg ({sampleLeg.name})</p>
+              <p>{fmtWhole(input.wllKg)} {result.passed ? ">=" : "<"} {fmtWhole(result.maxTensionKg)}</p>
+              <p>Status keseluruhan: {result.passed ? "LULUS" : "TIDAK LULUS"}</p>
             </Step>
 
-            <Step number="8" title="Kira margin keselamatan" formula="Margin = WLL Sling / Tension Sebenar">
-              <p>Margin = {fmtWhole(input.wllKg)} / {fmtWhole(result.tensionKg)}</p>
-              <p>{fmtWhole(input.wllKg)} / {fmtWhole(result.tensionKg)} = {fmt(result.margin, 2)} kali</p>
+            <Step number="9" title="Kira margin keselamatan paling rendah" formula="Margin = WLL Sling / Tension Sebenar">
+              <p>Margin = {fmtWhole(input.wllKg)} / {fmtWhole(result.maxTensionKg)}</p>
+              <p>{fmtWhole(input.wllKg)} / {fmtWhole(result.maxTensionKg)} = {fmt(result.minMargin, 2)} kali</p>
             </Step>
           </section>
         </section>
