@@ -243,6 +243,20 @@ function CalcSectionTitle({ title, note }) {
   );
 }
 
+function SimpleStep({ number, title, value, formula, hint, tone = "plain" }) {
+  return (
+    <article className={`simpleStep ${tone}`}>
+      <div className="simpleNumber">{number}</div>
+      <div>
+        <h3>{title}</h3>
+        <strong>{value}</strong>
+        <code>{formula}</code>
+        <p>{hint}</p>
+      </div>
+    </article>
+  );
+}
+
 function CalculatorGuide({ input, result }) {
   const sampleLeg = result.worstLeg;
   const utilization =
@@ -260,10 +274,57 @@ function CalculatorGuide({ input, result }) {
         <strong>MODE DEG</strong>
       </div>
 
+      <div className="simpleFlow" aria-label="Shortcut kiraan mudah">
+        <SimpleStep
+          number="1"
+          title="Berat masuk dulu"
+          value={`${fmtWhole(result.totalKg)} kg`}
+          formula={`${fmtWhole(input.loadKg)} + ${fmtWhole(input.riggingKg)}`}
+          hint="Campur berat beban dan berat rigging."
+        />
+        <SimpleStep
+          number="2"
+          title="Bahagi 4 sling"
+          value={`${fmtWhole(result.verticalPerLegKg)} kg / sling`}
+          formula={`${fmtWhole(result.totalKg)} / 4`}
+          hint="Ini beban menegak sebelum angle."
+        />
+        <SimpleStep
+          number="3"
+          title={`Cari degree ${sampleLeg.name}`}
+          value={`${fmt(sampleLeg.angleDeg, 1)} deg`}
+          formula={`SHIFT SIN (${fmt(sampleLeg.heightM, 3)} / ${fmt(sampleLeg.slingLengthM, 3)})`}
+          hint="Calculator wajib MODE DEG. Hasil ini ialah angle sling dari horizontal."
+        />
+        <SimpleStep
+          number="4"
+          title="Kira tension sebenar"
+          value={`${fmtWhole(sampleLeg.tensionKg)} kg`}
+          formula={`${fmtWhole(result.verticalPerLegKg)} / sin(${fmt(sampleLeg.angleDeg, 1)})`}
+          hint="Makin kecil degree, makin tinggi tension."
+          tone="warn"
+        />
+        <SimpleStep
+          number="5"
+          title="Check WLL selepas hitch"
+          value={result.passed ? "LULUS" : "TIDAK LULUS"}
+          formula={`${fmtWhole(input.wllKg)} x ${fmt(result.hitch.factor, 2)} = ${fmtWhole(result.effectiveWllKg)} kg`}
+          hint={`Compare WLL effective dengan tension tertinggi ${fmtWhole(result.maxTensionKg)} kg.`}
+          tone={result.passed ? "pass" : "fail"}
+        />
+      </div>
+
+      <div className="operatorNote">
+        <strong>Ayat mudah</strong>
+        <p>
+          Jangan fikir formula dulu. Tekan ikut turutan: berat total, bahagi 4, cari degree, kira tension, baru check WLL hitch.
+        </p>
+      </div>
+
       <ol className="calcLines">
         <CalcSectionTitle
-          title="A. Mula dari berat"
-          note="Campur semua berat, kemudian bahagi 4 sling."
+          title="Detail tekan calculator"
+          note="Bahagian ini untuk semak nombor satu persatu."
         />
         <CalcLine
           label="1. Berat total"
