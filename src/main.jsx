@@ -123,12 +123,130 @@ function Field({ icon: Icon, label, suffix, value, onChange, step = "0.001" }) {
   );
 }
 
+function MiniInput({ label, suffix, value, onChange, step = "0.001" }) {
+  return (
+    <label className="miniInput">
+      <span>{label}</span>
+      <div>
+        <input
+          type="number"
+          inputMode="decimal"
+          step={step}
+          value={value}
+          onChange={(event) => onChange(num(event.target.value))}
+        />
+        <b>{suffix}</b>
+      </div>
+    </label>
+  );
+}
+
 function ResultPill({ label, value }) {
   return (
     <div className="pill">
       <span>{label}</span>
       <strong>{value}</strong>
     </div>
+  );
+}
+
+function LiftingVisual({ input, result, setValue, setSlingLength }) {
+  const positions = [
+    "slingOneInput",
+    "slingTwoInput",
+    "slingThreeInput",
+    "slingFourInput",
+  ];
+
+  return (
+    <section className="liftingVisual" aria-label="Gambaran angkat container">
+      <div className="visualHeader">
+        <div>
+          <h2>Gambaran Angkat Container</h2>
+          <p>Hook tengah, 4-leg sling ke empat lifting point container.</p>
+        </div>
+        <strong>{result.passed ? "Setup Lulus" : "Semak Setup"}</strong>
+      </div>
+
+      <div className="visualStage">
+        <svg viewBox="0 0 900 520" role="img" aria-label="Diagram 4-leg sling mengangkat container">
+          <defs>
+            <marker
+              id="arrow"
+              markerHeight="8"
+              markerWidth="8"
+              orient="auto"
+              refX="7"
+              refY="4"
+            >
+              <path d="M0,0 L8,4 L0,8 Z" />
+            </marker>
+          </defs>
+
+          <path className="craneLine" d="M450 28 V78" />
+          <path className="hook" d="M428 78 H472 V103 C472 128 428 128 428 103" />
+          <circle className="hookPin" cx="450" cy="112" r="10" />
+
+          <path className="slingLine" d="M450 122 L210 330" />
+          <path className="slingLine" d="M450 122 L690 330" />
+          <path className="slingLine rear" d="M450 122 L285 392" />
+          <path className="slingLine rear" d="M450 122 L615 392" />
+
+          <ellipse className="topFace" cx="450" cy="350" rx="285" ry="82" />
+          <path className="containerTop" d="M165 330 L640 330 L735 392 L260 392 Z" />
+          <path className="containerFront" d="M260 392 L735 392 L735 468 L260 468 Z" />
+          <path className="containerSide" d="M165 330 L260 392 L260 468 L165 405 Z" />
+          <path className="containerSide right" d="M640 330 L735 392 L735 468 L640 405 Z" />
+
+          <path className="containerRib" d="M306 392 V468 M352 392 V468 M398 392 V468 M444 392 V468 M490 392 V468 M536 392 V468 M582 392 V468 M628 392 V468 M674 392 V468" />
+          <path className="containerRib side" d="M190 346 V421 M215 362 V438 M665 346 V421 M690 362 V438" />
+
+          <circle className="liftPoint" cx="210" cy="330" r="10" />
+          <circle className="liftPoint" cx="690" cy="330" r="10" />
+          <circle className="liftPoint" cx="285" cy="392" r="10" />
+          <circle className="liftPoint" cx="615" cy="392" r="10" />
+
+          <path className="dimension" d="M260 492 H735" markerEnd="url(#arrow)" />
+          <path className="dimension" d="M735 492 H260" markerEnd="url(#arrow)" />
+          <text className="dimensionText" x="470" y="513">L = {fmt(input.lengthM, 3)} m</text>
+          <path className="dimension" d="M130 338 L228 404" markerEnd="url(#arrow)" />
+          <path className="dimension" d="M228 404 L130 338" markerEnd="url(#arrow)" />
+          <text className="dimensionText" x="92" y="390">d = {fmt(input.widthM, 3)} m</text>
+
+          <text className="slingLabel" x="245" y="223">S1</text>
+          <text className="slingLabel" x="625" y="223">S2</text>
+          <text className="slingLabel" x="302" y="275">S3</text>
+          <text className="slingLabel" x="578" y="275">S4</text>
+          <text className="hookLabel" x="424" y="24">Hook</text>
+          <text className="loadLabel" x="374" y="438">{fmtWhole(result.totalKg)} kg</text>
+        </svg>
+
+        <div className="visualInputs">
+          <div className="visualGroup loadGroup">
+            <MiniInput label="Beban" suffix="kg" value={input.loadKg} onChange={setValue("loadKg")} step="1" />
+            <MiniInput label="Rigging" suffix="kg" value={input.riggingKg} onChange={setValue("riggingKg")} step="1" />
+          </div>
+
+          {input.slingLengthsM.map((value, index) => (
+            <div className={`visualGroup ${positions[index]}`} key={slingNames[index]}>
+              <MiniInput
+                label={`S${index + 1}`}
+                suffix="m"
+                value={value}
+                onChange={setSlingLength(index)}
+              />
+              <span>{fmtWhole(result.legs[index].tensionKg)} kg</span>
+            </div>
+          ))}
+
+          <div className="visualGroup containerInput">
+            <MiniInput label="L" suffix="m" value={input.lengthM} onChange={setValue("lengthM")} />
+            <MiniInput label="d" suffix="m" value={input.widthM} onChange={setValue("widthM")} />
+            <MiniInput label="WLL" suffix="kg" value={input.wllKg} onChange={setValue("wllKg")} step="1" />
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -285,6 +403,13 @@ function App() {
           </div>
 
           {warning && <p className="warning">{warning}</p>}
+
+          <LiftingVisual
+            input={input}
+            result={result}
+            setValue={setValue}
+            setSlingLength={setSlingLength}
+          />
 
           <div className="summary">
             <ResultPill label="Jumlah berat" value={`${fmtWhole(result.totalKg)} kg`} />
