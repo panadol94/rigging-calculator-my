@@ -1383,6 +1383,12 @@ dd {
     display: grid;
   }
 
+  .visualHeader p {
+    max-width: calc(100vw - 32px);
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+
   .visualStage {
     min-height: 390px;
   }
