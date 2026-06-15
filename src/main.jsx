@@ -150,6 +150,196 @@ function ResultPill({ label, value }) {
   );
 }
 
+function FormulaBox({ label, value }) {
+  return (
+    <div className="formulaBox">
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
+  );
+}
+
+function EquationRow({ title, boxes, resultLabel, resultValue }) {
+  return (
+    <section className="equationRow">
+      <h3>{title}</h3>
+      <div className="equationBoxes">
+        {boxes.map((box, index) => (
+          <React.Fragment key={`${box.label}-${index}`}>
+            <FormulaBox label={box.label} value={box.value} />
+            {index < boxes.length - 1 && <b className="operator">{box.operator ?? "÷"}</b>}
+          </React.Fragment>
+        ))}
+        <b className="operator">=</b>
+        <FormulaBox label={resultLabel} value={resultValue} />
+      </div>
+    </section>
+  );
+}
+
+function EngineeringSheet({ input, result, setValue, setSlingLength }) {
+  const sampleLeg = result.worstLeg;
+  const angleFactor =
+    Number.isFinite(sampleLeg.sinTheta) && sampleLeg.sinTheta !== 0
+      ? 1 / sampleLeg.sinTheta
+      : NaN;
+  const utilization =
+    Number.isFinite(result.maxTensionKg) && input.wllKg > 0
+      ? (result.maxTensionKg / input.wllKg) * 100
+      : NaN;
+
+  return (
+    <section className="engineeringSheet" aria-label="Lifting calculation sheet">
+      <div className="sheetTop">
+        <div>
+          <p className="sheetKicker">LIFTING CALCULATION</p>
+          <h2>4-Leg Webbing Sling Container</h2>
+        </div>
+        <div className="sheetPage">Page 1 / 1</div>
+      </div>
+
+      <div className="sheetBody">
+        <aside className="configTable" aria-label="Configuration">
+          <h3>CONFIGURATION</h3>
+          <dl>
+            <div>
+              <dt>Hitch</dt>
+              <dd>Direct hitch</dd>
+            </div>
+            <div>
+              <dt>Hitch factor</dt>
+              <dd>1.0</dd>
+            </div>
+            <div>
+              <dt>Angle</dt>
+              <dd>{fmt(sampleLeg.angleDeg, 1)} deg</dd>
+            </div>
+            <div>
+              <dt>Angle factor</dt>
+              <dd>{fmt(angleFactor, 2)}</dd>
+            </div>
+            <div>
+              <dt>Sling type</dt>
+              <dd>Webbing</dd>
+            </div>
+            <div>
+              <dt>Sling qty</dt>
+              <dd>4 leg</dd>
+            </div>
+            <div>
+              <dt>WLL / leg</dt>
+              <dd>{fmtWhole(input.wllKg)} kg</dd>
+            </div>
+          </dl>
+        </aside>
+
+        <div className="sheetMain">
+          <div className="drawingFrame">
+            <svg viewBox="0 0 900 560" role="img" aria-label="Technical drawing container lifting">
+              <defs>
+                <marker id="sheetArrow" markerHeight="7" markerWidth="7" orient="auto" refX="6" refY="3.5">
+                  <path d="M0,0 L7,3.5 L0,7 Z" />
+                </marker>
+              </defs>
+
+              <path className="sheetHookLine" d="M450 8 V60" />
+              <circle className="sheetHook" cx="450" cy="83" r="20" />
+              <path className="sheetHookCut" d="M450 84 C468 103 446 127 430 108" />
+
+              <path className="sheetSling" d="M450 103 L170 340" />
+              <path className="sheetSling" d="M450 103 L730 340" />
+              <path className="sheetSling thin" d="M450 103 L270 405" />
+              <path className="sheetSling thin" d="M450 103 L630 405" />
+
+              <path className="angleArc" d="M423 126 Q450 152 477 126" />
+              <text className="sheetSmallText" x="430" y="158">{fmt(sampleLeg.angleDeg, 1)} deg</text>
+
+              <path className="containerLine" d="M170 340 L730 340 L730 455 L170 455 Z" />
+              <path className="containerLine" d="M170 340 L270 405 L730 405" />
+              <path className="containerLine" d="M270 405 L270 455" />
+              <path className="containerLine" d="M330 405 L330 455 M570 405 L570 455" />
+              <path className="containerLine" d="M350 420 H430 V455 H350 Z M590 420 H670 V455 H590 Z" />
+
+              <circle className="sheetPoint" cx="170" cy="340" r="8" />
+              <circle className="sheetPoint" cx="730" cy="340" r="8" />
+              <circle className="sheetPoint" cx="270" cy="405" r="8" />
+              <circle className="sheetPoint" cx="630" cy="405" r="8" />
+
+              <text className="containerText" x="450" y="392">CONTAINER LOAD</text>
+              <text className="containerWeight" x="450" y="424">{fmtWhole(result.totalKg)} KG</text>
+
+              <path className="leader" d="M682 210 L600 315" markerEnd="url(#sheetArrow)" />
+              <text className="sheetCallout" x="692" y="207">WEBBING SLING</text>
+              <path className="leader" d="M770 280 L730 340" markerEnd="url(#sheetArrow)" />
+              <text className="sheetCallout" x="694" y="278">SHACKLE</text>
+              <path className="leader" d="M100 235 L170 340" markerEnd="url(#sheetArrow)" />
+              <text className="sheetCallout" x="20" y="232">DIRECT HITCH</text>
+              <path className="leader" d="M238 117 L411 122" markerEnd="url(#sheetArrow)" />
+              <text className="sheetCallout" x="35" y="116">ANGLE FACTOR {fmt(angleFactor, 2)}</text>
+
+              <path className="sheetDim" d="M170 492 H730" markerEnd="url(#sheetArrow)" />
+              <path className="sheetDim" d="M730 492 H170" markerEnd="url(#sheetArrow)" />
+              <text className="sheetDimText" x="415" y="525">{fmt(input.lengthM, 3)} M</text>
+              <path className="sheetDim" d="M128 340 V455" markerEnd="url(#sheetArrow)" />
+              <path className="sheetDim" d="M128 455 V340" markerEnd="url(#sheetArrow)" />
+              <text className="sheetDimText verticalText" x="110" y="425">{fmt(input.widthM, 3)} M</text>
+            </svg>
+
+            <div className="sheetInputGrid">
+              <MiniInput label="Beban" suffix="kg" value={input.loadKg} onChange={setValue("loadKg")} step="1" />
+              <MiniInput label="Rigging" suffix="kg" value={input.riggingKg} onChange={setValue("riggingKg")} step="1" />
+              {input.slingLengthsM.map((value, index) => (
+                <MiniInput
+                  key={slingNames[index]}
+                  label={`S${index + 1}`}
+                  suffix="m"
+                  value={value}
+                  onChange={setSlingLength(index)}
+                />
+              ))}
+              <MiniInput label="L" suffix="m" value={input.lengthM} onChange={setValue("lengthM")} />
+              <MiniInput label="d" suffix="m" value={input.widthM} onChange={setValue("widthM")} />
+              <MiniInput label="WLL" suffix="kg" value={input.wllKg} onChange={setValue("wllKg")} step="1" />
+            </div>
+          </div>
+
+          <EquationRow
+            title="SLING TENSION CALCULATION"
+            boxes={[
+              { label: "TOTAL LOAD", value: `${fmtWhole(result.totalKg)} KG`, operator: "÷" },
+              { label: "SLING QTY", value: "4 LEG", operator: "×" },
+              { label: "ANGLE FACTOR", value: fmt(angleFactor, 2), operator: "×" },
+            ]}
+            resultLabel="MAX SLING TENSION"
+            resultValue={`${fmtWhole(result.maxTensionKg)} KG`}
+          />
+
+          <EquationRow
+            title="SAFETY FACTOR SLING"
+            boxes={[
+              { label: "SWL / WLL SLING", value: `${fmtWhole(input.wllKg)} KG`, operator: "÷" },
+              { label: "SLING TENSION", value: `${fmtWhole(result.maxTensionKg)} KG` },
+            ]}
+            resultLabel="SAFETY FACTOR"
+            resultValue={`${fmt(result.minMargin, 2)} X`}
+          />
+
+          <EquationRow
+            title="PERCENTAGE OF USE SLING / UTILIZATION"
+            boxes={[
+              { label: "SLING TENSION", value: `${fmtWhole(result.maxTensionKg)} KG`, operator: "÷" },
+              { label: "SWL / WLL SLING", value: `${fmtWhole(input.wllKg)} KG`, operator: "×" },
+              { label: "100%", value: "100" },
+            ]}
+            resultLabel="UTILIZATION"
+            resultValue={`${fmt(utilization, 1)}%`}
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function LiftingVisual({ input, result, setValue, setSlingLength }) {
   const positions = [
     "slingOneInput",
@@ -405,6 +595,13 @@ function App() {
           {warning && <p className="warning">{warning}</p>}
 
           <LiftingVisual
+            input={input}
+            result={result}
+            setValue={setValue}
+            setSlingLength={setSlingLength}
+          />
+
+          <EngineeringSheet
             input={input}
             result={result}
             setValue={setValue}
