@@ -213,6 +213,199 @@ input[type="number"] {
   padding: 12px 14px;
 }
 
+.dutestCalculator {
+  background: #ffffff;
+  border: 1px solid #d9e1e7;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.dutestTitle,
+.dutestResultTitle {
+  background: #202020;
+  color: #ffffff;
+  font-size: 1.05rem;
+  font-weight: 900;
+  padding: 18px 20px;
+}
+
+.dutestBody {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(260px, 0.72fr) minmax(0, 1fr);
+  padding: 20px;
+}
+
+.dutestImageBox {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #d9e1e7;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  min-height: 260px;
+  padding: 12px;
+}
+
+.dutestImageBox svg {
+  display: block;
+  max-height: 330px;
+  width: 100%;
+}
+
+.calcBoxTop {
+  fill: #f8fafb;
+  stroke: #222222;
+  stroke-width: 2;
+}
+
+.calcBoxFront {
+  fill: #ffffff;
+  stroke: #222222;
+  stroke-width: 2;
+}
+
+.calcBoxSide {
+  fill: #eef2f4;
+  stroke: #222222;
+  stroke-width: 2;
+}
+
+.calcHook,
+.calcPoint {
+  fill: #ffffff;
+  stroke: #111111;
+  stroke-width: 3;
+}
+
+.calcMaster,
+.calcLeg {
+  fill: none;
+  stroke: #111111;
+  stroke-linecap: round;
+  stroke-width: 4;
+}
+
+.calcLeg.muted,
+.calcGuide {
+  fill: none;
+  stroke: #111111;
+  stroke-dasharray: 7 7;
+  stroke-linecap: round;
+  stroke-width: 2;
+}
+
+.calcMeasure {
+  fill: none;
+  stroke: #2747ff;
+  stroke-linecap: round;
+  stroke-width: 2;
+}
+
+.dutestImageBox text {
+  fill: #2747ff;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.dutestTables {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.dutestTable {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+}
+
+.dutestTable th,
+.dutestTable td {
+  border: 1px solid #d9e1e7;
+  color: #18212f;
+  font-size: 0.9rem;
+  padding: 10px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.dutestTable th {
+  background: #f2f5f6;
+  font-weight: 900;
+}
+
+.dutestTable tbody th {
+  text-align: left;
+}
+
+.calculatorCellInput {
+  align-items: center;
+  border: 1px solid #cbd6dd;
+  border-radius: 6px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  overflow: hidden;
+}
+
+.calculatorCellInput input {
+  font-size: 0.92rem;
+  padding: 9px 10px;
+}
+
+.calculatorCellInput b {
+  background: #edf2f4;
+  border-left: 1px solid #cbd6dd;
+  color: #46636b;
+  font-size: 0.78rem;
+  font-weight: 900;
+  min-width: 42px;
+  padding: 10px 8px;
+}
+
+.dutestActions {
+  display: flex;
+  gap: 10px;
+}
+
+.dutestActions button {
+  background: #202020;
+  border: 0;
+  border-radius: 6px;
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 900;
+  min-height: 44px;
+  padding: 10px 18px;
+}
+
+.dutestActions button:last-child {
+  background: #6b7280;
+}
+
+.resultTable td {
+  font-weight: 900;
+}
+
+.mutedCell {
+  color: #94a3ad !important;
+}
+
+.dutestNote {
+  background: #fff8e8;
+  border: 1px solid #efd08b;
+  border-radius: 8px;
+  color: #6a4a0b;
+  font-size: 0.88rem;
+  font-weight: 800;
+  line-height: 1.45;
+  margin: 0;
+  padding: 12px;
+}
+
 .liftingVisual {
   background: #ffffff;
   border: 1px solid #d9e1e7;
@@ -1668,11 +1861,57 @@ dd {
     width: 100vw;
   }
 
-  .liftingVisual {
+  .dutestCalculator {
     border: 0;
     border-radius: 0;
     max-width: 100vw;
     order: 1;
+    width: 100vw;
+  }
+
+  .dutestBody {
+    grid-template-columns: 1fr;
+    padding: 14px;
+  }
+
+  .dutestTitle,
+  .dutestResultTitle {
+    font-size: 1rem;
+    padding: 15px 16px;
+  }
+
+  .dutestImageBox {
+    min-height: 220px;
+  }
+
+  .dutestTable {
+    table-layout: auto;
+  }
+
+  .dutestTable th,
+  .dutestTable td {
+    font-size: 0.78rem;
+    padding: 8px 6px;
+  }
+
+  .dutestTable tbody th {
+    min-width: 116px;
+  }
+
+  .calculatorCellInput input {
+    padding: 8px 7px;
+  }
+
+  .dutestActions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .liftingVisual {
+    border: 0;
+    border-radius: 0;
+    max-width: 100vw;
+    order: 2;
     width: 100vw;
   }
 
@@ -1682,7 +1921,7 @@ dd {
     border-right: 0;
     grid-template-columns: 1fr;
     max-width: 100vw;
-    order: 2;
+    order: 3;
     width: 100vw;
   }
 
@@ -1691,7 +1930,7 @@ dd {
     border-radius: 0;
     border-right: 0;
     max-width: 100vw;
-    order: 3;
+    order: 4;
     width: 100vw;
   }
 
@@ -1702,27 +1941,27 @@ dd {
 
   .status {
     border-radius: 0;
-    order: 4;
+    order: 5;
   }
 
   .warning {
     border-radius: 0;
     margin: 0;
-    order: 5;
+    order: 6;
   }
 
   .summary {
-    order: 6;
+    order: 7;
     padding: 14px;
   }
 
   .slingGrid {
-    order: 7;
+    order: 8;
     padding: 0 14px;
   }
 
   .report {
-    order: 8;
+    order: 9;
     padding: 14px;
   }
 

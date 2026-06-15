@@ -40,6 +40,7 @@ const defaults = {
   slingLengthsM: [0.6, 0.6, 0.6, 0.6],
   lengthM: 0.3,
   widthM: 0.3,
+  knownAngleDeg: 45,
   wllKg: 3250,
   hitchType: "direct",
 };
@@ -69,6 +70,44 @@ function fmtCompact(value, digits = 3) {
   return new Intl.NumberFormat("ms-MY", {
     maximumFractionDigits: digits,
   }).format(value);
+}
+
+function metersToImperial(value) {
+  if (!Number.isFinite(value)) {
+    return {
+      feet: "-",
+      inches: "-",
+      totalInches: "-",
+    };
+  }
+
+  const totalInchesValue = value / 0.0254;
+  const feetValue = Math.floor(totalInchesValue / 12);
+  const inchesValue = totalInchesValue - feetValue * 12;
+
+  return {
+    feet: fmtWhole(feetValue),
+    inches: fmt(inchesValue, 2),
+    totalInches: fmt(totalInchesValue, 2),
+  };
+}
+
+function calcKnownAngle(input) {
+  const angleRad = (input.knownAngleDeg * Math.PI) / 180;
+  const horizontalM = Math.sqrt(input.lengthM ** 2 + input.widthM ** 2);
+  const cosAngle = Math.cos(angleRad);
+  const tanAngle = Math.tan(angleRad);
+  const slingLegM = cosAngle > 0 ? horizontalM / cosAngle : NaN;
+  const headRoomM = tanAngle > 0 ? horizontalM * tanAngle : NaN;
+
+  return {
+    horizontalM,
+    slingLegM,
+    headRoomM,
+    angleOk: input.knownAngleDeg >= 30 && input.knownAngleDeg < 90,
+    slingLegImperial: metersToImperial(slingLegM),
+    headRoomImperial: metersToImperial(headRoomM),
+  };
 }
 
 function calcLeg(name, slingLengthM, horizontalM, verticalPerLegKg, effectiveWllKg) {
@@ -227,6 +266,149 @@ function HitchSelector({ value, onChange, result }) {
       <p>
         {result.hitch.label}: WLL effective = {fmtWhole(result.effectiveWllKg)} kg
       </p>
+    </section>
+  );
+}
+
+function CalculatorCellInput({ value, suffix, onChange, step = "0.001" }) {
+  return (
+    <div className="calculatorCellInput">
+      <input
+        type="number"
+        inputMode="decimal"
+        step={step}
+        value={value}
+        onChange={(event) => onChange(num(event.target.value))}
+      />
+      <b>{suffix}</b>
+    </div>
+  );
+}
+
+function ResultCell({ value, muted = false }) {
+  return <td className={muted ? "mutedCell" : ""}>{value}</td>;
+}
+
+function DutestStyleCalculator({ input, setValue, onCalculate, onReset, knownAngle }) {
+  return (
+    <section className="dutestCalculator" aria-label="4 leg hitch calculator style">
+      <div className="dutestTitle">Enter The Data In The Boxes Below</div>
+
+      <div className="dutestBody">
+        <div className="dutestImageBox">
+          <svg viewBox="0 0 520 360" role="img" aria-label="4 leg sling diagram showing SL, HR, L, W and A">
+            <path className="calcBoxTop" d="M96 215 L355 215 L432 270 L172 270 Z" />
+            <path className="calcBoxFront" d="M172 270 L432 270 L432 320 L172 320 Z" />
+            <path className="calcBoxSide" d="M96 215 L172 270 L172 320 L96 265 Z" />
+            <circle className="calcHook" cx="260" cy="38" r="15" />
+            <path className="calcMaster" d="M260 52 V78" />
+            <path className="calcLeg" d="M260 78 L128 214" />
+            <path className="calcLeg" d="M260 78 L397 270" />
+            <path className="calcLeg muted" d="M260 78 L210 270" />
+            <path className="calcLeg muted" d="M260 78 L350 215" />
+            <circle className="calcPoint" cx="128" cy="214" r="7" />
+            <circle className="calcPoint" cx="397" cy="270" r="7" />
+            <circle className="calcPoint" cx="210" cy="270" r="7" />
+            <circle className="calcPoint" cx="350" cy="215" r="7" />
+            <path className="calcGuide" d="M260 78 V252" />
+            <path className="calcGuide" d="M260 252 L397 270" />
+            <path className="calcMeasure" d="M128 192 L260 56" />
+            <path className="calcMeasure" d="M172 338 H432" />
+            <path className="calcMeasure" d="M70 214 L145 268" />
+            <path className="calcMeasure" d="M405 252 Q385 238 372 254" />
+            <text x="150" y="136">SL</text>
+            <text x="275" y="166">HR</text>
+            <text x="293" y="294">L</text>
+            <text x="66" y="249">W</text>
+            <text x="407" y="248">A</text>
+          </svg>
+        </div>
+
+        <div className="dutestTables">
+          <table className="dutestTable">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Meters</th>
+                <th>Unit</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>Pick Point Spread L:</th>
+                <td>
+                  <CalculatorCellInput value={input.lengthM} suffix="m" onChange={setValue("lengthM")} />
+                </td>
+                <td>meter</td>
+              </tr>
+              <tr>
+                <th>Pick Point Spread W:</th>
+                <td>
+                  <CalculatorCellInput value={input.widthM} suffix="m" onChange={setValue("widthM")} />
+                </td>
+                <td>meter</td>
+              </tr>
+              <tr>
+                <th>Known Angle A:</th>
+                <td>
+                  <CalculatorCellInput
+                    value={input.knownAngleDeg}
+                    suffix="deg"
+                    onChange={setValue("knownAngleDeg")}
+                    step="1"
+                  />
+                </td>
+                <td>degrees from horizontal</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div className="dutestActions">
+            <button type="button" onClick={onCalculate}>CALCULATE</button>
+            <button type="button" onClick={onReset}>RESET</button>
+          </div>
+
+          <div className="dutestResultTitle">Result</div>
+          <table className="dutestTable resultTable">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Feet</th>
+                <th>Inches</th>
+                <th>Total Inches</th>
+                <th>Meters</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>Sling Leg Length SL:</th>
+                <ResultCell value={knownAngle.slingLegImperial.feet} />
+                <ResultCell value={knownAngle.slingLegImperial.inches} />
+                <ResultCell value={knownAngle.slingLegImperial.totalInches} />
+                <ResultCell value={`${fmt(knownAngle.slingLegM, 3)} m`} />
+              </tr>
+              <tr>
+                <th>Head Room HR:</th>
+                <ResultCell value={knownAngle.headRoomImperial.feet} />
+                <ResultCell value={knownAngle.headRoomImperial.inches} />
+                <ResultCell value={knownAngle.headRoomImperial.totalInches} />
+                <ResultCell value={`${fmt(knownAngle.headRoomM, 3)} m`} />
+              </tr>
+              <tr>
+                <th>Jarak bawah R:</th>
+                <ResultCell value="-" muted />
+                <ResultCell value="-" muted />
+                <ResultCell value="-" muted />
+                <ResultCell value={`${fmt(knownAngle.horizontalM, 3)} m`} />
+              </tr>
+            </tbody>
+          </table>
+
+          <p className="dutestNote">
+            Nota: A ialah angle dari horizontal. Jangan guna angle bawah 30 deg. Tekan CALCULATE untuk sync SL kepada S1-S4 dan update tension/WLL check.
+          </p>
+        </div>
+      </div>
     </section>
   );
 }
@@ -648,6 +830,7 @@ function Step({ number, title, formula, children }) {
 function App() {
   const [input, setInput] = useState(defaults);
   const result = useMemo(() => calc(input), [input]);
+  const knownAngle = useMemo(() => calcKnownAngle(input), [input]);
   const sampleLeg = result.worstLeg;
 
   const setValue = (key) => (value) => {
@@ -664,6 +847,21 @@ function App() {
 
   const setHitchType = (value) => {
     setInput((current) => ({ ...current, hitchType: value }));
+  };
+
+  const calculateKnownAngle = () => {
+    setInput((current) => {
+      const nextKnownAngle = calcKnownAngle(current);
+      if (!Number.isFinite(nextKnownAngle.slingLegM)) return current;
+      return {
+        ...current,
+        slingLengthsM: current.slingLengthsM.map(() => Number(nextKnownAngle.slingLegM.toFixed(3))),
+      };
+    });
+  };
+
+  const resetCalculator = () => {
+    setInput(defaults);
   };
 
   const warning =
@@ -730,6 +928,14 @@ function App() {
               onChange={setValue("widthM")}
             />
             <Field
+              icon={Ruler}
+              label="Known Angle A"
+              suffix="deg"
+              value={input.knownAngleDeg}
+              onChange={setValue("knownAngleDeg")}
+              step="1"
+            />
+            <Field
               icon={ShieldCheck}
               label="WLL sling setiap leg"
               suffix="kg"
@@ -752,6 +958,14 @@ function App() {
           </div>
 
           {warning && <p className="warning">{warning}</p>}
+
+          <DutestStyleCalculator
+            input={input}
+            setValue={setValue}
+            onCalculate={calculateKnownAngle}
+            onReset={resetCalculator}
+            knownAngle={knownAngle}
+          />
 
           <LiftingVisual
             input={input}
