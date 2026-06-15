@@ -139,6 +139,16 @@ input {
   padding: 11px 12px;
 }
 
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  appearance: textfield;
+}
+
 .inputRow b {
   background: #edf2f4;
   border-left: 1px solid #cbd6dd;
@@ -342,12 +352,16 @@ input {
 }
 
 .dimensionText {
-  font-size: 24px;
+  display: none;
+  font-size: 18px;
 }
 
-.slingLabel,
+.slingLabel {
+  display: none;
+}
+
 .hookLabel {
-  font-size: 24px;
+  font-size: 22px;
 }
 
 .loadLabel {
@@ -375,42 +389,48 @@ input {
 
 .visualGroup > span {
   color: #101820;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 800;
   text-align: center;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75);
+  text-shadow:
+    0 1px 0 #ffffff,
+    0 -1px 0 #ffffff,
+    1px 0 0 #ffffff,
+    -1px 0 0 #ffffff;
 }
 
 .loadGroup {
-  grid-template-columns: repeat(2, minmax(86px, 1fr));
+  column-gap: clamp(88px, 18vw, 150px);
+  grid-template-columns: repeat(2, max-content);
   left: 50%;
-  top: 12%;
+  top: 18%;
   transform: translateX(-50%);
 }
 
 .slingOneInput {
-  left: 8%;
-  top: 34%;
+  left: 7%;
+  top: 32%;
 }
 
 .slingTwoInput {
-  right: 8%;
-  top: 34%;
+  right: 7%;
+  top: 32%;
 }
 
 .slingThreeInput {
-  left: 17%;
-  top: 50%;
+  left: 10%;
+  top: 48%;
 }
 
 .slingFourInput {
-  right: 17%;
-  top: 50%;
+  right: 10%;
+  top: 48%;
 }
 
 .containerInput {
-  bottom: 8%;
-  grid-template-columns: repeat(3, minmax(74px, 1fr));
+  bottom: 5%;
+  column-gap: clamp(10px, 3vw, 28px);
+  grid-template-columns: repeat(3, max-content);
   left: 50%;
   transform: translateX(-50%);
 }
@@ -449,20 +469,32 @@ input {
 }
 
 .diagramInput {
+  align-items: baseline;
   color: #111111;
-  display: inline-grid;
-  gap: 1px;
+  display: inline-flex;
+  gap: 4px;
   line-height: 1;
   min-width: 0;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.82);
+  white-space: nowrap;
+  text-shadow:
+    0 1px 0 #ffffff,
+    0 -1px 0 #ffffff,
+    1px 0 0 #ffffff,
+    -1px 0 0 #ffffff,
+    0 0 5px rgba(255, 255, 255, 0.9);
 }
 
 .diagramInput span:first-child {
   color: inherit;
-  font-size: clamp(0.58rem, 1.05vw, 0.78rem);
+  font-size: clamp(0.58rem, 0.95vw, 0.74rem);
   font-weight: 900;
   letter-spacing: 0;
   text-transform: uppercase;
+}
+
+.diagramInput em {
+  font-style: normal;
+  font-weight: 900;
 }
 
 .diagramValue {
@@ -477,19 +509,21 @@ input {
   border: 0;
   color: inherit;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: clamp(0.76rem, 1.4vw, 1rem);
+  font-size: clamp(0.7rem, 1.18vw, 0.92rem);
   font-weight: 900;
   line-height: 1;
-  max-width: 72px;
-  min-width: 34px;
+  max-width: none;
+  min-width: 7ch;
   outline: 0;
   padding: 0;
+  text-align: left;
+  width: 7ch;
 }
 
 .diagramValue b {
   color: inherit;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: clamp(0.58rem, 1.05vw, 0.76rem);
+  font-size: clamp(0.54rem, 0.9vw, 0.7rem);
   font-weight: 900;
 }
 
@@ -717,7 +751,7 @@ input {
   padding: 0;
   pointer-events: auto;
   position: absolute;
-  width: clamp(92px, 10.5vw, 138px);
+  width: auto;
   z-index: 3;
 }
 
@@ -726,7 +760,7 @@ input {
   content: "";
   height: 1.5px;
   position: absolute;
-  width: 42px;
+  width: 32px;
 }
 
 .sheetInputSpot .miniInput {
@@ -759,27 +793,27 @@ input {
 }
 
 .sheetInputSpot .diagramInput {
-  background: rgba(255, 255, 255, 0.18);
+  background: transparent;
   padding: 0;
 }
 
 .sheetLoadInput {
-  left: 42%;
-  top: 71%;
+  left: 50%;
+  top: 70%;
   transform: translateX(-50%);
-  width: clamp(112px, 13vw, 160px);
 }
 
 .sheetLoadInput::before {
-  left: 100%;
-  top: 50%;
+  height: 20px;
+  left: 50%;
+  top: -22px;
+  width: 1.5px;
 }
 
 .sheetRiggingInput {
   left: 50%;
-  top: 18%;
+  top: 13%;
   transform: translateX(-50%);
-  width: clamp(112px, 13vw, 160px);
 }
 
 .sheetRiggingInput::before {
@@ -790,8 +824,8 @@ input {
 }
 
 .sheetSlingInput1 {
-  left: 16%;
-  top: 36%;
+  left: 6%;
+  top: 33%;
 }
 
 .sheetSlingInput1::before,
@@ -801,8 +835,8 @@ input {
 }
 
 .sheetSlingInput2 {
-  right: 16%;
-  top: 36%;
+  right: 6%;
+  top: 33%;
 }
 
 .sheetSlingInput2::before,
@@ -812,18 +846,18 @@ input {
 }
 
 .sheetSlingInput3 {
-  left: 28%;
-  top: 52%;
+  left: 8%;
+  top: 50%;
 }
 
 .sheetSlingInput4 {
-  right: 28%;
-  top: 52%;
+  right: 8%;
+  top: 50%;
 }
 
 .sheetLengthInput {
   left: 49%;
-  top: 87%;
+  top: 91%;
   transform: translateX(-50%);
 }
 
@@ -836,7 +870,7 @@ input {
 
 .sheetWidthInput {
   left: 3%;
-  top: 66%;
+  top: 78%;
 }
 
 .sheetWidthInput::before {
@@ -845,8 +879,8 @@ input {
 }
 
 .sheetWllInput {
-  right: 4%;
-  top: 62%;
+  right: 3%;
+  top: 72%;
 }
 
 .sheetWllInput::before {

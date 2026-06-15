@@ -145,6 +145,7 @@ function DiagramInput({ label, suffix, value, onChange, step = "0.001", tone = "
   return (
     <label className={`diagramInput ${tone}`}>
       <span>{label}</span>
+      <em>=</em>
       <span className="diagramValue">
         <input
           type="number"
@@ -284,16 +285,15 @@ function EngineeringSheet({ input, result, setValue, setSlingLength }) {
               <circle className="sheetPoint" cx="630" cy="405" r="8" />
 
               <text className="containerText" x="450" y="392">CONTAINER LOAD</text>
-              <text className="containerWeight" x="450" y="424">{fmtWhole(result.totalKg)} KG</text>
 
-              <path className="leader" d="M682 210 L600 315" markerEnd="url(#sheetArrow)" />
-              <text className="sheetCallout" x="692" y="207">WEBBING SLING</text>
-              <path className="leader" d="M770 280 L730 340" markerEnd="url(#sheetArrow)" />
-              <text className="sheetCallout" x="694" y="278">SHACKLE</text>
-              <path className="leader" d="M100 235 L170 340" markerEnd="url(#sheetArrow)" />
-              <text className="sheetCallout" x="20" y="232">DIRECT HITCH</text>
-              <path className="leader" d="M238 117 L411 122" markerEnd="url(#sheetArrow)" />
-              <text className="sheetCallout" x="35" y="116">ANGLE FACTOR {fmt(angleFactor, 2)}</text>
+              <path className="leader" d="M682 198 L600 315" markerEnd="url(#sheetArrow)" />
+              <text className="sheetCallout" x="692" y="196">WEBBING SLING</text>
+              <path className="leader" d="M792 302 L730 340" markerEnd="url(#sheetArrow)" />
+              <text className="sheetCallout" x="760" y="296">SHACKLE</text>
+              <path className="leader" d="M105 270 L170 340" markerEnd="url(#sheetArrow)" />
+              <text className="sheetCallout" x="28" y="266">DIRECT HITCH</text>
+              <path className="leader" d="M255 96 L411 122" markerEnd="url(#sheetArrow)" />
+              <text className="sheetCallout" x="35" y="94">ANGLE FACTOR {fmt(angleFactor, 2)}</text>
 
               <path className="sheetDim" d="M170 492 H730" markerEnd="url(#sheetArrow)" />
               <path className="sheetDim" d="M730 492 H170" markerEnd="url(#sheetArrow)" />
