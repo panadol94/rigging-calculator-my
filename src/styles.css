@@ -564,6 +564,104 @@ input[type="number"] {
     0 0 4px rgba(255, 255, 255, 0.72);
 }
 
+.calculatorGuide {
+  background: #ffffff;
+  border: 1px solid #d9e1e7;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.calculatorHead {
+  align-items: center;
+  border-bottom: 1px solid #d9e1e7;
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  padding: 16px;
+}
+
+.calculatorHead h2 {
+  font-size: 1.08rem;
+  margin-bottom: 0;
+}
+
+.calculatorHead .eyebrow {
+  margin-bottom: 4px;
+}
+
+.calculatorHead strong {
+  background: #102c57;
+  border-radius: 8px;
+  color: #ffffff;
+  flex: 0 0 auto;
+  font-size: 0.8rem;
+  padding: 8px 10px;
+}
+
+.calcLines {
+  display: grid;
+  gap: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.calcLine {
+  align-items: center;
+  border-bottom: 1px solid #edf2f4;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(135px, 0.7fr) minmax(0, 1.5fr) minmax(96px, 0.55fr);
+  padding: 12px 16px;
+}
+
+.calcLine span {
+  color: #314451;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.calcLine code {
+  background: #f3f6f7;
+  border: 1px solid #d9e1e7;
+  border-radius: 6px;
+  color: #18212f;
+  display: block;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 0.9rem;
+  overflow-x: auto;
+  padding: 9px 10px;
+  white-space: nowrap;
+}
+
+.calcLine strong {
+  color: #0f5c4f;
+  font-size: 0.96rem;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.calculatorNote {
+  background: #fff8e7;
+  border-top: 1px solid #ecd399;
+  display: grid;
+  gap: 5px;
+  padding: 12px 16px;
+}
+
+.calculatorNote span {
+  color: #7a5512;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.calculatorNote p {
+  color: #67450b;
+  font-size: 0.88rem;
+  margin-bottom: 0;
+}
+
 .engineeringSheet {
   background: #ffffff;
   border: 2px solid #111111;
@@ -1122,7 +1220,28 @@ dd {
 
 .reportTitle {
   align-items: baseline;
+  cursor: pointer;
   justify-content: space-between;
+  list-style: none;
+}
+
+.reportTitle::-webkit-details-marker {
+  display: none;
+}
+
+.reportTitle::after {
+  background: #edf2f4;
+  border-radius: 8px;
+  color: #314451;
+  content: "Buka";
+  flex: 0 0 auto;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 7px 10px;
+}
+
+.report[open] .reportTitle::after {
+  content: "Tutup";
 }
 
 .reportTitle p {
@@ -1227,10 +1346,16 @@ dd {
     order: 1;
   }
 
+  .calculatorGuide {
+    border-left: 0;
+    border-radius: 0;
+    border-right: 0;
+    order: 2;
+  }
+
   .engineeringSheet {
     border-left: 0;
     border-right: 0;
-    order: 2;
   }
 
   .status {
@@ -1257,6 +1382,16 @@ dd {
   .report {
     order: 7;
     padding: 14px;
+  }
+
+  .calcLine {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+    padding: 12px 14px;
+  }
+
+  .calcLine strong {
+    text-align: left;
   }
 
   .summary {
@@ -1379,6 +1514,11 @@ dd {
   }
 
   .visualHeader {
+    align-items: flex-start;
+    display: grid;
+  }
+
+  .calculatorHead {
     align-items: flex-start;
     display: grid;
   }

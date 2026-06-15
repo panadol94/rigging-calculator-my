@@ -169,122 +169,81 @@ function ResultPill({ label, value }) {
   );
 }
 
-function FormulaBox({ label, value }) {
+function CalcLine({ label, keys, answer }) {
   return (
-    <div className="formulaBox">
+    <li className="calcLine">
       <span>{label}</span>
-      <strong>{value}</strong>
-    </div>
+      <code>{keys}</code>
+      <strong>{answer}</strong>
+    </li>
   );
 }
 
-function EquationRow({ title, boxes, resultLabel, resultValue }) {
-  return (
-    <section className="equationRow">
-      <h3>{title}</h3>
-      <div className="equationBoxes">
-        {boxes.map((box, index) => (
-          <React.Fragment key={`${box.label}-${index}`}>
-            <FormulaBox label={box.label} value={box.value} />
-            {index < boxes.length - 1 && <b className="operator">{box.operator ?? "÷"}</b>}
-          </React.Fragment>
-        ))}
-        <b className="operator">=</b>
-        <FormulaBox label={resultLabel} value={resultValue} />
-      </div>
-    </section>
-  );
-}
-
-function EngineeringSheet({ input, result }) {
+function CalculatorGuide({ input, result }) {
   const sampleLeg = result.worstLeg;
-  const angleFactor =
-    Number.isFinite(sampleLeg.sinTheta) && sampleLeg.sinTheta !== 0
-      ? 1 / sampleLeg.sinTheta
-      : NaN;
   const utilization =
     Number.isFinite(result.maxTensionKg) && input.wllKg > 0
       ? (result.maxTensionKg / input.wllKg) * 100
       : NaN;
+  const horizontalSquare = input.lengthM ** 2 + input.widthM ** 2;
 
   return (
-    <section className="engineeringSheet" aria-label="Lifting calculation sheet">
-      <div className="sheetTop">
+    <section className="calculatorGuide" aria-label="Cara kira guna scientific calculator">
+      <div className="calculatorHead">
         <div>
-          <p className="sheetKicker">LIFTING CALCULATION</p>
-          <h2>4-Leg Webbing Sling Container</h2>
+          <p className="eyebrow">Scientific Calculator</p>
+          <h2>Cara Tekan Calculator</h2>
         </div>
-        <div className="sheetPage">Page 1 / 1</div>
+        <strong>MODE DEG</strong>
       </div>
 
-      <div className="sheetBody">
-        <aside className="configTable" aria-label="Configuration">
-          <h3>CONFIGURATION</h3>
-          <dl>
-            <div>
-              <dt>Hitch</dt>
-              <dd>Direct hitch</dd>
-            </div>
-            <div>
-              <dt>Hitch factor</dt>
-              <dd>1.0</dd>
-            </div>
-            <div>
-              <dt>Angle</dt>
-              <dd>{fmt(sampleLeg.angleDeg, 1)} deg</dd>
-            </div>
-            <div>
-              <dt>Angle factor</dt>
-              <dd>{fmt(angleFactor, 2)}</dd>
-            </div>
-            <div>
-              <dt>Sling type</dt>
-              <dd>Webbing</dd>
-            </div>
-            <div>
-              <dt>Sling qty</dt>
-              <dd>4 leg</dd>
-            </div>
-            <div>
-              <dt>WLL / leg</dt>
-              <dd>{fmtWhole(input.wllKg)} kg</dd>
-            </div>
-          </dl>
-        </aside>
+      <ol className="calcLines">
+        <CalcLine
+          label="1. Jumlah berat"
+          keys={`${fmtWhole(input.loadKg)} + ${fmtWhole(input.riggingKg)} =`}
+          answer={`${fmtWhole(result.totalKg)} kg`}
+        />
+        <CalcLine
+          label="2. Jarak mendatar R"
+          keys={`sqrt(${fmt(input.lengthM, 3)}^2 + ${fmt(input.widthM, 3)}^2) =`}
+          answer={`${fmt(result.horizontalM, 3)} m`}
+        />
+        <CalcLine
+          label={`3. Tinggi ${sampleLeg.name}`}
+          keys={`sqrt(${fmt(sampleLeg.slingLengthM, 3)}^2 - ${fmt(result.horizontalM, 3)}^2) =`}
+          answer={`${fmt(sampleLeg.heightM, 3)} m`}
+        />
+        <CalcLine
+          label={`4. Sudut ${sampleLeg.name}`}
+          keys={`sin-1(${fmt(sampleLeg.heightM, 3)} / ${fmt(sampleLeg.slingLengthM, 3)}) =`}
+          answer={`${fmt(sampleLeg.angleDeg, 2)} deg`}
+        />
+        <CalcLine
+          label="5. Beban setiap sling"
+          keys={`${fmtWhole(result.totalKg)} / 4 =`}
+          answer={`${fmtWhole(result.verticalPerLegKg)} kg`}
+        />
+        <CalcLine
+          label={`6. Tension ${sampleLeg.name}`}
+          keys={`${fmtWhole(result.verticalPerLegKg)} / sin(${fmt(sampleLeg.angleDeg, 2)}) =`}
+          answer={`${fmtWhole(sampleLeg.tensionKg)} kg`}
+        />
+        <CalcLine
+          label="7. Semak WLL"
+          keys={`${fmtWhole(input.wllKg)} - ${fmtWhole(result.maxTensionKg)} =`}
+          answer={result.passed ? "LULUS" : "TIDAK LULUS"}
+        />
+        <CalcLine
+          label="8. Margin"
+          keys={`${fmtWhole(input.wllKg)} / ${fmtWhole(result.maxTensionKg)} =`}
+          answer={`${fmt(result.minMargin, 2)} kali`}
+        />
+      </ol>
 
-        <div className="sheetMain">
-          <EquationRow
-            title="SLING TENSION CALCULATION"
-            boxes={[
-              { label: "TOTAL LOAD", value: `${fmtWhole(result.totalKg)} KG`, operator: "÷" },
-              { label: "SLING QTY", value: "4 LEG", operator: "×" },
-              { label: "ANGLE FACTOR", value: fmt(angleFactor, 2), operator: "×" },
-            ]}
-            resultLabel="MAX SLING TENSION"
-            resultValue={`${fmtWhole(result.maxTensionKg)} KG`}
-          />
-
-          <EquationRow
-            title="SAFETY FACTOR SLING"
-            boxes={[
-              { label: "SWL / WLL SLING", value: `${fmtWhole(input.wllKg)} KG`, operator: "÷" },
-              { label: "SLING TENSION", value: `${fmtWhole(result.maxTensionKg)} KG` },
-            ]}
-            resultLabel="SAFETY FACTOR"
-            resultValue={`${fmt(result.minMargin, 2)} X`}
-          />
-
-          <EquationRow
-            title="PERCENTAGE OF USE SLING / UTILIZATION"
-            boxes={[
-              { label: "SLING TENSION", value: `${fmtWhole(result.maxTensionKg)} KG`, operator: "÷" },
-              { label: "SWL / WLL SLING", value: `${fmtWhole(input.wllKg)} KG`, operator: "×" },
-              { label: "100%", value: "100" },
-            ]}
-            resultLabel="UTILIZATION"
-            resultValue={`${fmt(utilization, 1)}%`}
-          />
-        </div>
+      <div className="calculatorNote">
+        <span>Nota</span>
+        <p>Untuk sling lain, ulang step 3, 4 dan 6 sahaja. R guna nilai sama: {fmt(result.horizontalM, 3)} m. R^2 = {fmt(horizontalSquare, 3)}.</p>
+        <p>Utilization = {fmt(utilization, 1)}%. Pastikan calculator dalam DEG sebelum tekan sin atau sin-1.</p>
       </div>
     </section>
   );
@@ -551,7 +510,7 @@ function App() {
             setSlingLength={setSlingLength}
           />
 
-          <EngineeringSheet
+          <CalculatorGuide
             input={input}
             result={result}
           />
@@ -576,11 +535,11 @@ function App() {
             ))}
           </section>
 
-          <section className="report">
-            <div className="reportTitle">
-              <h2>Jalan Kiraan Lengkap</h2>
-              <p>Contoh detail ikut sling paling tinggi tension: {sampleLeg.name}.</p>
-            </div>
+          <details className="report">
+            <summary className="reportTitle">
+              <h2>Detail Kiraan</h2>
+              <p>Rujukan penuh ikut sling tension tertinggi: {sampleLeg.name}.</p>
+            </summary>
 
             <Step number="1" title="Kira jumlah berat" formula="Jumlah Berat = Berat Beban + Berat Rigging">
               <p>Jumlah Berat = {fmtWhole(input.loadKg)} + {fmtWhole(input.riggingKg)}</p>
@@ -643,7 +602,7 @@ function App() {
               <p>Margin = {fmtWhole(input.wllKg)} / {fmtWhole(result.maxTensionKg)}</p>
               <p>{fmtWhole(input.wllKg)} / {fmtWhole(result.maxTensionKg)} = {fmt(result.minMargin, 2)} kali</p>
             </Step>
-          </section>
+          </details>
         </section>
       </section>
     </main>
