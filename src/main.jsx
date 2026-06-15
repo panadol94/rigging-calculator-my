@@ -51,7 +51,8 @@ function calcLeg(name, slingLengthM, horizontalM, verticalPerLegKg, wllKg) {
       ? (Math.asin(sinAngle) * 180) / Math.PI
       : NaN;
   const sinTheta = Math.sin((angleDeg * Math.PI) / 180);
-  const tensionKg = verticalPerLegKg / sinTheta;
+  const angleFactor = 1 / sinTheta;
+  const tensionKg = verticalPerLegKg * angleFactor;
   const margin = wllKg / tensionKg;
   const geometryOk = heightSquared >= 0 && slingLengthM > 0;
 
@@ -63,6 +64,7 @@ function calcLeg(name, slingLengthM, horizontalM, verticalPerLegKg, wllKg) {
     sinAngle,
     angleDeg,
     sinTheta,
+    angleFactor,
     tensionKg,
     margin,
     geometryOk,
@@ -219,22 +221,27 @@ function CalculatorGuide({ input, result }) {
           answer={`${fmt(sampleLeg.angleDeg, 2)} deg`}
         />
         <CalcLine
-          label="5. Beban setiap sling"
+          label="5. Angle factor"
+          keys={`1 / sin(${fmt(sampleLeg.angleDeg, 2)}) =`}
+          answer={fmt(sampleLeg.angleFactor, 2)}
+        />
+        <CalcLine
+          label="6. Beban setiap sling"
           keys={`${fmtWhole(result.totalKg)} / 4 =`}
           answer={`${fmtWhole(result.verticalPerLegKg)} kg`}
         />
         <CalcLine
-          label={`6. Tension ${sampleLeg.name}`}
-          keys={`${fmtWhole(result.verticalPerLegKg)} / sin(${fmt(sampleLeg.angleDeg, 2)}) =`}
+          label={`7. Tension ${sampleLeg.name}`}
+          keys={`${fmtWhole(result.verticalPerLegKg)} x ${fmt(sampleLeg.angleFactor, 2)} =`}
           answer={`${fmtWhole(sampleLeg.tensionKg)} kg`}
         />
         <CalcLine
-          label="7. Semak WLL"
+          label="8. Semak WLL"
           keys={`${fmtWhole(input.wllKg)} - ${fmtWhole(result.maxTensionKg)} =`}
           answer={result.passed ? "LULUS" : "TIDAK LULUS"}
         />
         <CalcLine
-          label="8. Margin"
+          label="9. Margin"
           keys={`${fmtWhole(input.wllKg)} / ${fmtWhole(result.maxTensionKg)} =`}
           answer={`${fmt(result.minMargin, 2)} kali`}
         />
@@ -368,6 +375,10 @@ function SlingCard({ leg, verticalPerLegKg, wllKg }) {
         <div>
           <dt>Sudut</dt>
           <dd>{fmt(leg.angleDeg, 1)} deg</dd>
+        </div>
+        <div>
+          <dt>Angle factor</dt>
+          <dd>{fmt(leg.angleFactor, 2)}</dd>
         </div>
         <div>
           <dt>Beban menegak</dt>
@@ -575,30 +586,36 @@ function App() {
               <p>{fmtWhole(result.totalKg)} / 4 = {fmtWhole(result.verticalPerLegKg)} kg</p>
             </Step>
 
-            <Step number="6" title={`Kira tension sebenar ${sampleLeg.name}`} formula="Tension = Beban Setiap Sling / sin(theta)">
-              <p>Tension = {fmtWhole(result.verticalPerLegKg)} / sin({fmt(sampleLeg.angleDeg, 2)})</p>
+            <Step number="6" title="Kira angle factor" formula="Angle Factor = 1 / sin(theta)">
+              <p>Angle factor = 1 / sin({fmt(sampleLeg.angleDeg, 2)})</p>
               <p>sin({fmt(sampleLeg.angleDeg, 2)}) = {fmt(sampleLeg.sinTheta, 4)}</p>
-              <p>{fmtWhole(result.verticalPerLegKg)} / {fmt(sampleLeg.sinTheta, 4)} = {fmtWhole(sampleLeg.tensionKg)} kg</p>
+              <p>1 / {fmt(sampleLeg.sinTheta, 4)} = {fmt(sampleLeg.angleFactor, 2)}</p>
+            </Step>
+
+            <Step number="7" title={`Kira tension sebenar ${sampleLeg.name}`} formula="Tension = Beban Setiap Sling x Angle Factor">
+              <p>Tension = {fmtWhole(result.verticalPerLegKg)} x {fmt(sampleLeg.angleFactor, 2)}</p>
+              <p>{fmtWhole(result.verticalPerLegKg)} x {fmt(sampleLeg.angleFactor, 2)} = {fmtWhole(sampleLeg.tensionKg)} kg</p>
               <p>Dalam tan: {fmtWhole(sampleLeg.tensionKg)} / 1,000 = {fmt(sampleLeg.tensionKg / 1000, 2)} tan</p>
             </Step>
 
-            <Step number="7" title="Result Sling 1, Sling 2, Sling 3, Sling 4" formula="Kiraan yang sama dibuat untuk setiap sling">
+            <Step number="8" title="Result Sling 1, Sling 2, Sling 3, Sling 4" formula="Kiraan yang sama dibuat untuk setiap sling">
               {result.legs.map((leg) => (
                 <p key={leg.name}>
                   {leg.name}: S = {fmt(leg.slingLengthM, 3)} m, H = {fmt(leg.heightM, 3)} m, sudut = {fmt(leg.angleDeg, 2)} deg,
-                  tension = {fmtWhole(leg.tensionKg)} kg, status = {leg.passed ? "LULUS" : leg.geometryOk ? "TIDAK LULUS" : "SEMAK"}
+                  angle factor = {fmt(leg.angleFactor, 2)}, tension = {fmtWhole(leg.tensionKg)} kg,
+                  status = {leg.passed ? "LULUS" : leg.geometryOk ? "TIDAK LULUS" : "SEMAK"}
                 </p>
               ))}
             </Step>
 
-            <Step number="8" title="Semak WLL sling" formula="WLL Sling >= Tension Sebenar">
+            <Step number="9" title="Semak WLL sling" formula="WLL Sling >= Tension Sebenar">
               <p>WLL sling = {fmtWhole(input.wllKg)} kg</p>
               <p>Tension tertinggi = {fmtWhole(result.maxTensionKg)} kg ({sampleLeg.name})</p>
               <p>{fmtWhole(input.wllKg)} {result.passed ? ">=" : "<"} {fmtWhole(result.maxTensionKg)}</p>
               <p>Status keseluruhan: {result.passed ? "LULUS" : "TIDAK LULUS"}</p>
             </Step>
 
-            <Step number="9" title="Kira margin keselamatan paling rendah" formula="Margin = WLL Sling / Tension Sebenar">
+            <Step number="10" title="Kira margin keselamatan paling rendah" formula="Margin = WLL Sling / Tension Sebenar">
               <p>Margin = {fmtWhole(input.wllKg)} / {fmtWhole(result.maxTensionKg)}</p>
               <p>{fmtWhole(input.wllKg)} / {fmtWhole(result.maxTensionKg)} = {fmt(result.minMargin, 2)} kali</p>
             </Step>
