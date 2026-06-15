@@ -4,6 +4,8 @@
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 * {
@@ -12,10 +14,14 @@
 
 body {
   margin: 0;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 main {
   min-height: 100vh;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .topbar {
@@ -1333,7 +1339,7 @@ dd {
   }
 
   .sheetSlingInput2 {
-    right: 4%;
+    right: 16%;
     top: 30%;
   }
 
@@ -1343,7 +1349,7 @@ dd {
   }
 
   .sheetSlingInput4 {
-    right: 4%;
+    right: 16%;
     top: 54%;
   }
 
@@ -1465,6 +1471,11 @@ dd {
   .sheetWidthInput,
   .sheetWllInput {
     display: none;
+  }
+
+  .sheetSlingInput2,
+  .sheetSlingInput4 {
+    right: 18%;
   }
 
   .sheetLoadInput {
