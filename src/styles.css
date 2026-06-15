@@ -362,22 +362,23 @@ input {
 }
 
 .visualGroup {
-  background: rgba(255, 255, 255, 0.94);
-  border: 1px solid #cbd6dd;
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(24, 33, 47, 0.1);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
   display: grid;
-  gap: 6px;
-  padding: 8px;
+  gap: 3px;
+  padding: 0;
   pointer-events: auto;
   position: absolute;
 }
 
 .visualGroup > span {
-  color: #126a4b;
-  font-size: 0.78rem;
+  color: #101820;
+  font-size: 0.72rem;
   font-weight: 800;
   text-align: center;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75);
 }
 
 .loadGroup {
@@ -445,6 +446,62 @@ input {
   color: #46636b;
   font-size: 0.75rem;
   padding: 7px 8px;
+}
+
+.diagramInput {
+  color: #111111;
+  display: inline-grid;
+  gap: 1px;
+  line-height: 1;
+  min-width: 0;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.82);
+}
+
+.diagramInput span:first-child {
+  color: inherit;
+  font-size: clamp(0.58rem, 1.05vw, 0.78rem);
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.diagramValue {
+  align-items: baseline;
+  display: inline-flex;
+  gap: 2px;
+  min-width: 0;
+}
+
+.diagramValue input {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(0.76rem, 1.4vw, 1rem);
+  font-weight: 900;
+  line-height: 1;
+  max-width: 72px;
+  min-width: 34px;
+  outline: 0;
+  padding: 0;
+}
+
+.diagramValue b {
+  color: inherit;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(0.58rem, 1.05vw, 0.76rem);
+  font-weight: 900;
+}
+
+.diagramInput.red {
+  color: #be2723;
+}
+
+.diagramInput.light {
+  color: #0c1720;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9),
+    0 0 4px rgba(255, 255, 255, 0.72);
 }
 
 .engineeringSheet {
@@ -653,11 +710,11 @@ input {
 }
 
 .sheetInputSpot {
-  background: #fffdf2;
-  border: 1.5px solid #111111;
-  box-shadow: 4px 4px 0 rgba(17, 17, 17, 0.14);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
   min-width: 0;
-  padding: 5px;
+  padding: 0;
   pointer-events: auto;
   position: absolute;
   width: clamp(92px, 10.5vw, 138px);
@@ -665,7 +722,7 @@ input {
 }
 
 .sheetInputSpot::before {
-  background: #111111;
+  background: rgba(17, 17, 17, 0.55);
   content: "";
   height: 1.5px;
   position: absolute;
@@ -699,6 +756,11 @@ input {
   background: #f2f2f2;
   border-left-color: #111111;
   color: #111111;
+}
+
+.sheetInputSpot .diagramInput {
+  background: rgba(255, 255, 255, 0.18);
+  padding: 0;
 }
 
 .sheetLoadInput {
@@ -1054,12 +1116,87 @@ dd {
 }
 
 @media (max-width: 920px) {
+  body {
+    background: #ffffff;
+  }
+
+  .topbar {
+    background: #bd2422;
+    border-bottom: 0;
+    color: #ffffff;
+    justify-content: flex-start;
+    padding: 22px 24px;
+  }
+
+  .topbar::before {
+    color: #ffffff;
+    content: "‹";
+    font-size: 3rem;
+    font-weight: 300;
+    line-height: 0.7;
+    margin-right: 10px;
+  }
+
+  .eyebrow,
+  .topIcon {
+    display: none;
+  }
+
+  h1 {
+    color: #ffffff;
+    font-size: 1.72rem;
+    line-height: 1.05;
+  }
+
   .layout {
     grid-template-columns: 1fr;
+    padding: 0;
   }
 
   .panel {
-    position: static;
+    display: none;
+  }
+
+  .content {
+    gap: 0;
+  }
+
+  .liftingVisual {
+    border: 0;
+    border-radius: 0;
+    order: 1;
+  }
+
+  .engineeringSheet {
+    border-left: 0;
+    border-right: 0;
+    order: 2;
+  }
+
+  .status {
+    border-radius: 0;
+    order: 3;
+  }
+
+  .warning {
+    border-radius: 0;
+    margin: 0;
+    order: 4;
+  }
+
+  .summary {
+    order: 5;
+    padding: 14px;
+  }
+
+  .slingGrid {
+    order: 6;
+    padding: 0 14px;
+  }
+
+  .report {
+    order: 7;
+    padding: 14px;
   }
 
   .summary {
@@ -1097,39 +1234,27 @@ dd {
 
   .visualStage {
     aspect-ratio: auto;
-    display: flex;
-    flex-direction: column;
-    min-height: 640px;
+    display: block;
+    min-height: 430px;
   }
 
   .visualStage svg {
-    height: 360px;
-    order: 1;
+    height: 100%;
+    min-height: 430px;
+    order: initial;
   }
 
   .visualInputs {
-    display: grid;
-    gap: 8px;
-    inset: auto;
-    order: 2;
-    padding: 0 12px 12px;
-    position: static;
-  }
-
-  .visualGroup,
-  .loadGroup,
-  .slingOneInput,
-  .slingTwoInput,
-  .slingThreeInput,
-  .slingFourInput,
-  .containerInput {
-    position: static;
-    transform: none;
+    display: block;
+    inset: 0;
+    order: initial;
+    padding: 0;
+    position: absolute;
   }
 
   .loadGroup,
   .containerInput {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, auto));
   }
 }
 
@@ -1158,7 +1283,11 @@ dd {
   }
 
   .visualStage {
-    min-height: 700px;
+    min-height: 390px;
+  }
+
+  .visualStage svg {
+    min-height: 390px;
   }
 
   .sheetTop {
@@ -1180,11 +1309,11 @@ dd {
   }
 
   .sheetInputsOverlay {
-    display: none;
+    display: block;
   }
 
   .sheetInputGrid {
-    display: grid;
+    display: none;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     max-width: none;
     position: static;

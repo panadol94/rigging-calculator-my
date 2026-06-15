@@ -141,6 +141,24 @@ function MiniInput({ label, suffix, value, onChange, step = "0.001" }) {
   );
 }
 
+function DiagramInput({ label, suffix, value, onChange, step = "0.001", tone = "dark" }) {
+  return (
+    <label className={`diagramInput ${tone}`}>
+      <span>{label}</span>
+      <span className="diagramValue">
+        <input
+          type="number"
+          inputMode="decimal"
+          step={step}
+          value={value}
+          onChange={(event) => onChange(num(event.target.value))}
+        />
+        <b>{suffix}</b>
+      </span>
+    </label>
+  );
+}
+
 function ResultPill({ label, value }) {
   return (
     <div className="pill">
@@ -287,29 +305,30 @@ function EngineeringSheet({ input, result, setValue, setSlingLength }) {
 
             <div className="sheetInputsOverlay" aria-label="Input dalam gambar calculation sheet">
               <div className="sheetInputSpot sheetLoadInput">
-                <MiniInput label="Input Beban" suffix="kg" value={input.loadKg} onChange={setValue("loadKg")} step="1" />
+                <DiagramInput label="W / Beban" suffix="kg" value={input.loadKg} onChange={setValue("loadKg")} step="1" tone="red" />
               </div>
               <div className="sheetInputSpot sheetRiggingInput">
-                <MiniInput label="Input Rigging" suffix="kg" value={input.riggingKg} onChange={setValue("riggingKg")} step="1" />
+                <DiagramInput label="Wh / Rigging" suffix="kg" value={input.riggingKg} onChange={setValue("riggingKg")} step="1" />
               </div>
               {input.slingLengthsM.map((value, index) => (
                 <div className={`sheetInputSpot sheetSlingInput sheetSlingInput${index + 1}`} key={slingNames[index]}>
-                  <MiniInput
-                    label={`Input S${index + 1}`}
+                  <DiagramInput
+                    label={`S${index + 1}`}
                     suffix="m"
                     value={value}
                     onChange={setSlingLength(index)}
+                    tone={index === 0 ? "red" : "dark"}
                   />
                 </div>
               ))}
               <div className="sheetInputSpot sheetLengthInput">
-                <MiniInput label="Input L" suffix="m" value={input.lengthM} onChange={setValue("lengthM")} />
+                <DiagramInput label="L" suffix="m" value={input.lengthM} onChange={setValue("lengthM")} />
               </div>
               <div className="sheetInputSpot sheetWidthInput">
-                <MiniInput label="Input d" suffix="m" value={input.widthM} onChange={setValue("widthM")} />
+                <DiagramInput label="d" suffix="m" value={input.widthM} onChange={setValue("widthM")} />
               </div>
               <div className="sheetInputSpot sheetWllInput">
-                <MiniInput label="Input WLL" suffix="kg" value={input.wllKg} onChange={setValue("wllKg")} step="1" />
+                <DiagramInput label="WLL" suffix="kg" value={input.wllKg} onChange={setValue("wllKg")} step="1" />
               </div>
             </div>
 
@@ -441,26 +460,27 @@ function LiftingVisual({ input, result, setValue, setSlingLength }) {
 
         <div className="visualInputs">
           <div className="visualGroup loadGroup">
-            <MiniInput label="Beban" suffix="kg" value={input.loadKg} onChange={setValue("loadKg")} step="1" />
-            <MiniInput label="Rigging" suffix="kg" value={input.riggingKg} onChange={setValue("riggingKg")} step="1" />
+            <DiagramInput label="W / Beban" suffix="kg" value={input.loadKg} onChange={setValue("loadKg")} step="1" tone="light" />
+            <DiagramInput label="Wh / Rigging" suffix="kg" value={input.riggingKg} onChange={setValue("riggingKg")} step="1" tone="light" />
           </div>
 
           {input.slingLengthsM.map((value, index) => (
             <div className={`visualGroup ${positions[index]}`} key={slingNames[index]}>
-              <MiniInput
+              <DiagramInput
                 label={`S${index + 1}`}
                 suffix="m"
                 value={value}
                 onChange={setSlingLength(index)}
+                tone="light"
               />
               <span>{fmtWhole(result.legs[index].tensionKg)} kg</span>
             </div>
           ))}
 
           <div className="visualGroup containerInput">
-            <MiniInput label="L" suffix="m" value={input.lengthM} onChange={setValue("lengthM")} />
-            <MiniInput label="d" suffix="m" value={input.widthM} onChange={setValue("widthM")} />
-            <MiniInput label="WLL" suffix="kg" value={input.wllKg} onChange={setValue("wllKg")} step="1" />
+            <DiagramInput label="L" suffix="m" value={input.lengthM} onChange={setValue("lengthM")} tone="light" />
+            <DiagramInput label="d" suffix="m" value={input.widthM} onChange={setValue("widthM")} tone="light" />
+            <DiagramInput label="WLL" suffix="kg" value={input.wllKg} onChange={setValue("wllKg")} step="1" tone="light" />
           </div>
         </div>
       </div>
@@ -544,7 +564,7 @@ function App() {
       <header className="topbar">
         <div>
           <p className="eyebrow">Bahasa Melayu | kg dan meter</p>
-          <h1>Kalkulator Rigging 4-Leg Sling</h1>
+          <h1>4 Slings Tension</h1>
         </div>
         <div className="topIcon" title="Kiraan scientific calculator">
           <Calculator size={26} />
