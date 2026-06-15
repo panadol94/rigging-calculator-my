@@ -249,7 +249,6 @@ function CalculatorGuide({ input, result }) {
     Number.isFinite(result.maxTensionKg) && result.effectiveWllKg > 0
       ? (result.maxTensionKg / result.effectiveWllKg) * 100
       : NaN;
-  const horizontalSquare = input.lengthM ** 2 + input.widthM ** 2;
 
   return (
     <section className="calculatorGuide" aria-label="Cara kira guna scientific calculator">
@@ -263,85 +262,85 @@ function CalculatorGuide({ input, result }) {
 
       <ol className="calcLines">
         <CalcSectionTitle
-          title="A. Data asas"
-          note="Berat total, R dan beban asas."
+          title="A. Mula dari berat"
+          note="Campur semua berat, kemudian bahagi 4 sling."
         />
         <CalcLine
-          label="1. Jumlah berat"
+          label="1. Berat total"
           keys={`${fmtWhole(input.loadKg)} + ${fmtWhole(input.riggingKg)} =`}
           answer={`${fmtWhole(result.totalKg)} kg`}
         />
         <CalcLine
-          label="2. Jarak mendatar R"
-          keys={`sqrt(${fmt(input.lengthM, 3)}^2 + ${fmt(input.widthM, 3)}^2) =`}
-          answer={`${fmt(result.horizontalM, 3)} m`}
-        />
-        <CalcLine
-          label="3. Beban setiap sling"
+          label="2. Beban 1 sling"
           keys={`${fmtWhole(result.totalKg)} / 4 =`}
           answer={`${fmtWhole(result.verticalPerLegKg)} kg`}
         />
 
         <CalcSectionTitle
-          title="B. Cara kira degree"
-          note={`${sampleLeg.name}: tekan sin-1 dalam DEG.`}
+          title="B. Cari degree"
+          note={`Contoh ${sampleLeg.name}. Pastikan calculator MODE DEG.`}
         />
         <CalcLine
-          label={`4. Tinggi H ${sampleLeg.name}`}
-          keys={`sqrt(${fmt(sampleLeg.slingLengthM, 3)}^2 - ${fmt(result.horizontalM, 3)}^2) =`}
+          label="3. Jarak bawah R"
+          keys={`√(${fmt(input.lengthM, 3)}^2 + ${fmt(input.widthM, 3)}^2) =`}
+          answer={`${fmt(result.horizontalM, 3)} m`}
+        />
+        <CalcLine
+          label="4. Tinggi sling H"
+          keys={`√(${fmt(sampleLeg.slingLengthM, 3)}^2 - ${fmt(result.horizontalM, 3)}^2) =`}
           answer={`${fmt(sampleLeg.heightM, 3)} m`}
         />
         <CalcLine
-          label="5. Nisbah H / S"
+          label="5. Cari degree"
           keys={`${fmt(sampleLeg.heightM, 3)} / ${fmt(sampleLeg.slingLengthM, 3)} =`}
           answer={fmt(sampleLeg.sinAngle, 4)}
         />
         <CalcLine
-          label="6. Degree"
+          label="Tekan SHIFT SIN"
           keys={`sin-1(${fmt(sampleLeg.sinAngle, 4)}) =`}
           answer={`${fmt(sampleLeg.angleDeg, 2)} deg`}
         />
-        <CalcLine
-          label="7. Angle factor"
-          keys={`1 / sin(${fmt(sampleLeg.angleDeg, 2)}) =`}
-          answer={fmt(sampleLeg.angleFactor, 2)}
+
+        <CalcSectionTitle
+          title="C. Cari tension"
+          note="Cara mudah: beban 1 sling bahagi sin(degree)."
         />
         <CalcLine
-          label={`8. Tension ${sampleLeg.name}`}
-          keys={`${fmtWhole(result.verticalPerLegKg)} x ${fmt(sampleLeg.angleFactor, 2)} =`}
+          label={`6. Tension ${sampleLeg.name}`}
+          keys={`${fmtWhole(result.verticalPerLegKg)} / sin(${fmt(sampleLeg.angleDeg, 2)}) =`}
           answer={`${fmtWhole(sampleLeg.tensionKg)} kg`}
         />
         <CalcLine
-          label="9. Tukar ke tan"
+          label="Dalam tan"
           keys={`${fmtWhole(sampleLeg.tensionKg)} / 1000 =`}
           answer={`${fmt(sampleLeg.tensionKg / 1000, 2)} tan`}
         />
 
         <CalcSectionTitle
-          title="C. Semua kiraan sling"
-          note="Ulang untuk S1, S2, S3, S4."
+          title="D. Semua sling"
+          note="Ulang cara sama untuk S1, S2, S3, S4."
         />
         {result.legs.map((leg, index) => (
           <CalcLine
             key={leg.name}
             label={`${index + 1}. ${leg.name}`}
-            keys={`H=sqrt(${fmt(leg.slingLengthM, 3)}^2-${fmt(result.horizontalM, 3)}^2), deg=sin-1(H/${fmt(leg.slingLengthM, 3)}), T=${fmtWhole(result.verticalPerLegKg)} x ${fmt(leg.angleFactor, 2)}`}
+            keys={`${fmtWhole(result.verticalPerLegKg)} / sin(${fmt(leg.angleDeg, 2)}) =`}
             answer={`${fmt(leg.angleDeg, 1)} deg | ${fmtWhole(leg.tensionKg)} kg`}
           />
         ))}
 
         <CalcSectionTitle
-          title="D. Semakan akhir"
-          note="Bandingkan tension dengan WLL effective."
+          title="E. Check hitch dan WLL"
+          note="WLL asal darab hitch factor, baru compare dengan tension."
         />
         <CalcLine
-          label="Hitch factor"
+          label="7. WLL selepas hitch"
           keys={`${fmtWhole(input.wllKg)} x ${fmt(result.hitch.factor, 2)} =`}
           answer={`${fmtWhole(result.effectiveWllKg)} kg`}
         />
         <CalcLine
-          label="WLL effective vs tension"
-          keys={`${fmtWhole(result.effectiveWllKg)} - ${fmtWhole(result.maxTensionKg)} =`}
+          label="Compare"
+          keys={`${fmtWhole(result.effectiveWllKg)} >= ${fmtWhole(result.maxTensionKg)}`}
           answer={result.passed ? "LULUS" : "TIDAK LULUS"}
         />
         <CalcLine
@@ -353,8 +352,9 @@ function CalculatorGuide({ input, result }) {
 
       <div className="calculatorNote">
         <span>Nota</span>
-        <p>Scientific calculator: tekan MODE DEG dahulu. Jangan guna RAD, sebab sin-1 perlu keluar jawapan dalam degree.</p>
-        <p>R guna nilai sama untuk semua sling: {fmt(result.horizontalM, 3)} m. R^2 = {fmt(horizontalSquare, 3)}. Utilization ikut WLL effective = {fmt(utilization, 1)}%.</p>
+        <p>MODE DEG dahulu. Untuk degree, tekan nilai H / S, kemudian SHIFT SIN atau sin-1.</p>
+        <p>Untuk tension, cara paling mudah tekan {fmtWhole(result.verticalPerLegKg)} / sin({fmt(sampleLeg.angleDeg, 2)}) = {fmtWhole(sampleLeg.tensionKg)} kg.</p>
+        <p>R guna nilai sama untuk semua sling: {fmt(result.horizontalM, 3)} m. Utilization ikut WLL effective = {fmt(utilization, 1)}%.</p>
       </div>
     </section>
   );
