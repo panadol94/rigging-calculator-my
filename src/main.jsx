@@ -350,12 +350,12 @@ function CalculatorGuide({ input, result }) {
         />
         <CalcLine
           label="3. Jarak bawah R"
-          keys={`√(${fmt(input.lengthM, 3)}^2 + ${fmt(input.widthM, 3)}^2) =`}
+          keys={`√((${fmt(input.lengthM, 3)} x ${fmt(input.lengthM, 3)}) + (${fmt(input.widthM, 3)} x ${fmt(input.widthM, 3)})) =`}
           answer={`${fmt(result.horizontalM, 3)} m`}
         />
         <CalcLine
           label="4. Tinggi sling H"
-          keys={`√(${fmt(sampleLeg.slingLengthM, 3)}^2 - ${fmt(result.horizontalM, 3)}^2) =`}
+          keys={`√((${fmt(sampleLeg.slingLengthM, 3)} x ${fmt(sampleLeg.slingLengthM, 3)}) - (${fmt(result.horizontalM, 3)} x ${fmt(result.horizontalM, 3)})) =`}
           answer={`${fmt(sampleLeg.heightM, 3)} m`}
         />
         <CalcLine
@@ -749,26 +749,26 @@ function App() {
               <p>Dalam tan: {fmtWhole(result.totalKg)} / 1,000 = {fmt(result.totalKg / 1000, 2)} tan</p>
             </Step>
 
-            <Step number="2" title="Kira jarak mendatar 3D setiap sling" formula="R = sqrt(L^2 + d^2)">
-              <p>R = sqrt({fmt(input.lengthM, 3)}^2 + {fmt(input.widthM, 3)}^2)</p>
-              <p>{fmt(input.lengthM, 3)}^2 = {fmt(input.lengthM ** 2, 3)}</p>
-              <p>{fmt(input.widthM, 3)}^2 = {fmt(input.widthM ** 2, 3)}</p>
+            <Step number="2" title="Kira jarak mendatar 3D setiap sling" formula="R = sqrt((L x L) + (D x D))">
+              <p>R = sqrt(({fmt(input.lengthM, 3)} x {fmt(input.lengthM, 3)}) + ({fmt(input.widthM, 3)} x {fmt(input.widthM, 3)}))</p>
+              <p>{fmt(input.lengthM, 3)} x {fmt(input.lengthM, 3)} = {fmt(input.lengthM ** 2, 3)}</p>
+              <p>{fmt(input.widthM, 3)} x {fmt(input.widthM, 3)} = {fmt(input.widthM ** 2, 3)}</p>
               <p>{fmt(input.lengthM ** 2, 3)} + {fmt(input.widthM ** 2, 3)} = {fmt(input.lengthM ** 2 + input.widthM ** 2, 3)}</p>
               <p>sqrt({fmt(input.lengthM ** 2 + input.widthM ** 2, 3)}) = {fmt(result.horizontalM, 3)} m</p>
             </Step>
 
-            <Step number="3" title={`Kira tinggi ${sampleLeg.name}`} formula="H = sqrt(S^2 - R^2)">
-              <p>H = sqrt({fmt(sampleLeg.slingLengthM, 3)}^2 - {fmt(result.horizontalM, 3)}^2)</p>
-              <p>{fmt(sampleLeg.slingLengthM, 3)}^2 = {fmt(sampleLeg.slingLengthM ** 2, 3)}</p>
-              <p>{fmt(result.horizontalM, 3)}^2 = {fmt(result.horizontalM ** 2, 3)}</p>
+            <Step number="3" title={`Kira tinggi ${sampleLeg.name}`} formula="H = sqrt((S x S) - (R x R))">
+              <p>H = sqrt(({fmt(sampleLeg.slingLengthM, 3)} x {fmt(sampleLeg.slingLengthM, 3)}) - ({fmt(result.horizontalM, 3)} x {fmt(result.horizontalM, 3)}))</p>
+              <p>{fmt(sampleLeg.slingLengthM, 3)} x {fmt(sampleLeg.slingLengthM, 3)} = {fmt(sampleLeg.slingLengthM ** 2, 3)}</p>
+              <p>{fmt(result.horizontalM, 3)} x {fmt(result.horizontalM, 3)} = {fmt(result.horizontalM ** 2, 3)}</p>
               <p>{fmt(sampleLeg.slingLengthM ** 2, 3)} - {fmt(result.horizontalM ** 2, 3)} = {fmt(sampleLeg.heightSquared, 3)}</p>
               <p>sqrt({fmt(sampleLeg.heightSquared, 3)}) = {fmt(sampleLeg.heightM, 3)} m</p>
             </Step>
 
-            <Step number="4" title={`Kira sudut ${sampleLeg.name} dari horizontal`} formula="theta = sin^-1(H / S)">
-              <p>theta = sin^-1({fmt(sampleLeg.heightM, 3)} / {fmt(sampleLeg.slingLengthM, 3)})</p>
+            <Step number="4" title={`Kira sudut ${sampleLeg.name} dari horizontal`} formula="theta = SHIFT SIN (H / S)">
+              <p>theta = SHIFT SIN ({fmt(sampleLeg.heightM, 3)} / {fmt(sampleLeg.slingLengthM, 3)})</p>
               <p>{fmt(sampleLeg.heightM, 3)} / {fmt(sampleLeg.slingLengthM, 3)} = {fmt(sampleLeg.sinAngle, 4)}</p>
-              <p>sin^-1({fmt(sampleLeg.sinAngle, 4)}) = {fmt(sampleLeg.angleDeg, 2)} deg</p>
+              <p>SHIFT SIN ({fmt(sampleLeg.sinAngle, 4)}) = {fmt(sampleLeg.angleDeg, 2)} deg</p>
               <p className="note">Pastikan scientific calculator berada dalam mode DEG, bukan RAD.</p>
             </Step>
 
