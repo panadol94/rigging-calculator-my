@@ -13,6 +13,27 @@ import "./styles.css";
 
 const slingNames = ["Sling 1", "Sling 2", "Sling 3", "Sling 4"];
 
+const hitchOptions = [
+  {
+    id: "direct",
+    label: "Direct hitch",
+    shortLabel: "Direct",
+    factor: 1,
+  },
+  {
+    id: "choke",
+    label: "Choke hitch",
+    shortLabel: "Choke",
+    factor: 0.8,
+  },
+  {
+    id: "basket",
+    label: "Basket hitch",
+    shortLabel: "Basket",
+    factor: 2,
+  },
+];
+
 const defaults = {
   loadKg: 6000,
   riggingKg: 2000,
@@ -20,6 +41,7 @@ const defaults = {
   lengthM: 0.3,
   widthM: 0.3,
   wllKg: 3250,
+  hitchType: "direct",
 };
 
 function num(value) {
@@ -42,7 +64,7 @@ function fmtWhole(value) {
   }).format(value);
 }
 
-function calcLeg(name, slingLengthM, horizontalM, verticalPerLegKg, wllKg) {
+function calcLeg(name, slingLengthM, horizontalM, verticalPerLegKg, effectiveWllKg) {
   const heightSquared = slingLengthM ** 2 - horizontalM ** 2;
   const heightM = heightSquared >= 0 ? Math.sqrt(heightSquared) : NaN;
   const sinAngle = heightM / slingLengthM;
@@ -53,7 +75,7 @@ function calcLeg(name, slingLengthM, horizontalM, verticalPerLegKg, wllKg) {
   const sinTheta = Math.sin((angleDeg * Math.PI) / 180);
   const angleFactor = 1 / sinTheta;
   const tensionKg = verticalPerLegKg * angleFactor;
-  const margin = wllKg / tensionKg;
+  const margin = effectiveWllKg / tensionKg;
   const geometryOk = heightSquared >= 0 && slingLengthM > 0;
 
   return {
@@ -68,16 +90,18 @@ function calcLeg(name, slingLengthM, horizontalM, verticalPerLegKg, wllKg) {
     tensionKg,
     margin,
     geometryOk,
-    passed: geometryOk && Number.isFinite(tensionKg) && wllKg >= tensionKg,
+    passed: geometryOk && Number.isFinite(tensionKg) && effectiveWllKg >= tensionKg,
   };
 }
 
 function calc(input) {
+  const hitch = hitchOptions.find((option) => option.id === input.hitchType) ?? hitchOptions[0];
   const totalKg = input.loadKg + input.riggingKg;
   const horizontalM = Math.sqrt(input.lengthM ** 2 + input.widthM ** 2);
   const verticalPerLegKg = totalKg / 4;
+  const effectiveWllKg = input.wllKg * hitch.factor;
   const legs = input.slingLengthsM.map((length, index) =>
-    calcLeg(slingNames[index], length, horizontalM, verticalPerLegKg, input.wllKg),
+    calcLeg(slingNames[index], length, horizontalM, verticalPerLegKg, effectiveWllKg),
   );
   const validTensions = legs
     .map((leg) => leg.tensionKg)
@@ -95,6 +119,8 @@ function calc(input) {
     totalKg,
     horizontalM,
     verticalPerLegKg,
+    hitch,
+    effectiveWllKg,
     legs,
     worstLeg,
     maxTensionKg,
@@ -171,6 +197,33 @@ function ResultPill({ label, value }) {
   );
 }
 
+function HitchSelector({ value, onChange, result }) {
+  return (
+    <section className="hitchSelector" aria-label="Pilih hitch factor">
+      <div>
+        <p className="eyebrow">Hitch Factor</p>
+        <h2>Jenis Hitch</h2>
+      </div>
+      <div className="hitchOptions">
+        {hitchOptions.map((option) => (
+          <button
+            className={option.id === value ? "active" : ""}
+            key={option.id}
+            onClick={() => onChange(option.id)}
+            type="button"
+          >
+            <span>{option.shortLabel}</span>
+            <strong>x {fmt(option.factor, 2)}</strong>
+          </button>
+        ))}
+      </div>
+      <p>
+        {result.hitch.label}: WLL effective = {fmtWhole(result.effectiveWllKg)} kg
+      </p>
+    </section>
+  );
+}
+
 function CalcLine({ label, keys, answer }) {
   return (
     <li className="calcLine">
@@ -193,8 +246,8 @@ function CalcSectionTitle({ title, note }) {
 function CalculatorGuide({ input, result }) {
   const sampleLeg = result.worstLeg;
   const utilization =
-    Number.isFinite(result.maxTensionKg) && input.wllKg > 0
-      ? (result.maxTensionKg / input.wllKg) * 100
+    Number.isFinite(result.maxTensionKg) && result.effectiveWllKg > 0
+      ? (result.maxTensionKg / result.effectiveWllKg) * 100
       : NaN;
   const horizontalSquare = input.lengthM ** 2 + input.widthM ** 2;
 
@@ -279,16 +332,21 @@ function CalculatorGuide({ input, result }) {
 
         <CalcSectionTitle
           title="D. Semakan akhir"
-          note="Bandingkan tension dengan WLL."
+          note="Bandingkan tension dengan WLL effective."
         />
         <CalcLine
-          label="WLL vs tension"
-          keys={`${fmtWhole(input.wllKg)} - ${fmtWhole(result.maxTensionKg)} =`}
+          label="Hitch factor"
+          keys={`${fmtWhole(input.wllKg)} x ${fmt(result.hitch.factor, 2)} =`}
+          answer={`${fmtWhole(result.effectiveWllKg)} kg`}
+        />
+        <CalcLine
+          label="WLL effective vs tension"
+          keys={`${fmtWhole(result.effectiveWllKg)} - ${fmtWhole(result.maxTensionKg)} =`}
           answer={result.passed ? "LULUS" : "TIDAK LULUS"}
         />
         <CalcLine
           label="Margin"
-          keys={`${fmtWhole(input.wllKg)} / ${fmtWhole(result.maxTensionKg)} =`}
+          keys={`${fmtWhole(result.effectiveWllKg)} / ${fmtWhole(result.maxTensionKg)} =`}
           answer={`${fmt(result.minMargin, 2)} kali`}
         />
       </ol>
@@ -296,7 +354,7 @@ function CalculatorGuide({ input, result }) {
       <div className="calculatorNote">
         <span>Nota</span>
         <p>Scientific calculator: tekan MODE DEG dahulu. Jangan guna RAD, sebab sin-1 perlu keluar jawapan dalam degree.</p>
-        <p>R guna nilai sama untuk semua sling: {fmt(result.horizontalM, 3)} m. R^2 = {fmt(horizontalSquare, 3)}. Utilization = {fmt(utilization, 1)}%.</p>
+        <p>R guna nilai sama untuk semua sling: {fmt(result.horizontalM, 3)} m. R^2 = {fmt(horizontalSquare, 3)}. Utilization ikut WLL effective = {fmt(utilization, 1)}%.</p>
       </div>
     </section>
   );
@@ -402,7 +460,7 @@ function LiftingVisual({ input, result, setValue, setSlingLength }) {
   );
 }
 
-function SlingCard({ leg, verticalPerLegKg, wllKg }) {
+function SlingCard({ leg, verticalPerLegKg, effectiveWllKg }) {
   return (
     <article className={`slingCard ${leg.passed ? "ok" : "bad"}`}>
       <div className="slingHead">
@@ -435,8 +493,8 @@ function SlingCard({ leg, verticalPerLegKg, wllKg }) {
           <dd>{fmtWhole(leg.tensionKg)} kg</dd>
         </div>
         <div>
-          <dt>Margin WLL</dt>
-          <dd>{fmt(wllKg / leg.tensionKg, 2)} kali</dd>
+          <dt>Margin WLL eff.</dt>
+          <dd>{fmt(effectiveWllKg / leg.tensionKg, 2)} kali</dd>
         </div>
       </dl>
     </article>
@@ -471,6 +529,10 @@ function App() {
       slingLengthsM[index] = value;
       return { ...current, slingLengthsM };
     });
+  };
+
+  const setHitchType = (value) => {
+    setInput((current) => ({ ...current, hitchType: value }));
   };
 
   const warning =
@@ -567,6 +629,12 @@ function App() {
             setSlingLength={setSlingLength}
           />
 
+          <HitchSelector
+            value={input.hitchType}
+            onChange={setHitchType}
+            result={result}
+          />
+
           <CalculatorGuide
             input={input}
             result={result}
@@ -577,6 +645,8 @@ function App() {
             <ResultPill label="Jarak mendatar" value={`${fmt(result.horizontalM, 3)} m`} />
             <ResultPill label="Beban / sling" value={`${fmtWhole(result.verticalPerLegKg)} kg`} />
             <ResultPill label="Tension tertinggi" value={`${fmtWhole(result.maxTensionKg)} kg`} />
+            <ResultPill label="Hitch factor" value={`${result.hitch.shortLabel} x ${fmt(result.hitch.factor, 2)}`} />
+            <ResultPill label="WLL effective" value={`${fmtWhole(result.effectiveWllKg)} kg`} />
             <ResultPill label="Sling paling berat" value={sampleLeg.name} />
             <ResultPill label="Margin terendah" value={`${fmt(result.minMargin, 2)} kali`} />
           </div>
@@ -587,7 +657,7 @@ function App() {
                 key={leg.name}
                 leg={leg}
                 verticalPerLegKg={result.verticalPerLegKg}
-                wllKg={input.wllKg}
+                effectiveWllKg={result.effectiveWllKg}
               />
             ))}
           </section>
@@ -654,16 +724,24 @@ function App() {
               ))}
             </Step>
 
-            <Step number="9" title="Semak WLL sling" formula="WLL Sling >= Tension Sebenar">
-              <p>WLL sling = {fmtWhole(input.wllKg)} kg</p>
+            <Step number="9" title="Kira hitch factor" formula="WLL Effective = WLL Sling x Hitch Factor">
+              <p>Jenis hitch = {result.hitch.label}</p>
+              <p>Hitch factor = {fmt(result.hitch.factor, 2)}</p>
+              <p>WLL effective = {fmtWhole(input.wllKg)} x {fmt(result.hitch.factor, 2)}</p>
+              <p>{fmtWhole(input.wllKg)} x {fmt(result.hitch.factor, 2)} = {fmtWhole(result.effectiveWllKg)} kg</p>
+            </Step>
+
+            <Step number="10" title="Semak WLL sling" formula="WLL Effective >= Tension Sebenar">
+              <p>WLL asal = {fmtWhole(input.wllKg)} kg</p>
+              <p>WLL effective = {fmtWhole(result.effectiveWllKg)} kg</p>
               <p>Tension tertinggi = {fmtWhole(result.maxTensionKg)} kg ({sampleLeg.name})</p>
-              <p>{fmtWhole(input.wllKg)} {result.passed ? ">=" : "<"} {fmtWhole(result.maxTensionKg)}</p>
+              <p>{fmtWhole(result.effectiveWllKg)} {result.passed ? ">=" : "<"} {fmtWhole(result.maxTensionKg)}</p>
               <p>Status keseluruhan: {result.passed ? "LULUS" : "TIDAK LULUS"}</p>
             </Step>
 
-            <Step number="10" title="Kira margin keselamatan paling rendah" formula="Margin = WLL Sling / Tension Sebenar">
-              <p>Margin = {fmtWhole(input.wllKg)} / {fmtWhole(result.maxTensionKg)}</p>
-              <p>{fmtWhole(input.wllKg)} / {fmtWhole(result.maxTensionKg)} = {fmt(result.minMargin, 2)} kali</p>
+            <Step number="11" title="Kira margin keselamatan paling rendah" formula="Margin = WLL Effective / Tension Sebenar">
+              <p>Margin = {fmtWhole(result.effectiveWllKg)} / {fmtWhole(result.maxTensionKg)}</p>
+              <p>{fmtWhole(result.effectiveWllKg)} / {fmtWhole(result.maxTensionKg)} = {fmt(result.minMargin, 2)} kali</p>
             </Step>
           </details>
         </section>

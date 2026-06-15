@@ -570,6 +570,74 @@ input[type="number"] {
     0 0 4px rgba(255, 255, 255, 0.72);
 }
 
+.hitchSelector {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #d9e1e7;
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(150px, 0.6fr) minmax(260px, 1fr);
+  padding: 16px;
+}
+
+.hitchSelector h2 {
+  font-size: 1.05rem;
+  margin-bottom: 0;
+}
+
+.hitchSelector p {
+  color: #46636b;
+  font-size: 0.86rem;
+  font-weight: 700;
+  grid-column: 1 / -1;
+  margin-bottom: 0;
+}
+
+.hitchOptions {
+  background: #edf2f4;
+  border: 1px solid #d9e1e7;
+  border-radius: 8px;
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 100%;
+  min-width: 0;
+  padding: 5px;
+  width: 100%;
+}
+
+.hitchOptions button {
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  color: #314451;
+  cursor: pointer;
+  display: grid;
+  font: inherit;
+  gap: 2px;
+  min-height: 54px;
+  min-width: 0;
+  padding: 8px 6px;
+  text-align: center;
+}
+
+.hitchOptions button.active {
+  background: #102c57;
+  color: #ffffff;
+}
+
+.hitchOptions span {
+  font-size: 0.8rem;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.hitchOptions strong {
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
+}
+
 .calculatorGuide {
   background: #ffffff;
   border: 1px solid #d9e1e7;
@@ -1384,12 +1452,22 @@ dd {
     width: 100vw;
   }
 
+  .hitchSelector {
+    border-left: 0;
+    border-radius: 0;
+    border-right: 0;
+    grid-template-columns: 1fr;
+    max-width: 100vw;
+    order: 2;
+    width: 100vw;
+  }
+
   .calculatorGuide {
     border-left: 0;
     border-radius: 0;
     border-right: 0;
     max-width: 100vw;
-    order: 2;
+    order: 3;
     width: 100vw;
   }
 
@@ -1400,27 +1478,27 @@ dd {
 
   .status {
     border-radius: 0;
-    order: 3;
+    order: 4;
   }
 
   .warning {
     border-radius: 0;
     margin: 0;
-    order: 4;
+    order: 5;
   }
 
   .summary {
-    order: 5;
+    order: 6;
     padding: 14px;
   }
 
   .slingGrid {
-    order: 6;
+    order: 7;
     padding: 0 14px;
   }
 
   .report {
-    order: 7;
+    order: 8;
     padding: 14px;
   }
 
@@ -1567,6 +1645,19 @@ dd {
     max-width: calc(100vw - 32px);
     overflow-wrap: anywhere;
     white-space: normal;
+  }
+
+  .hitchOptions {
+    grid-template-columns: 1fr;
+  }
+
+  .hitchOptions button {
+    align-items: start;
+    display: grid;
+    justify-content: stretch;
+    min-height: 44px;
+    padding: 8px 12px;
+    text-align: left;
   }
 
   .visualStage {
