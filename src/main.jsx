@@ -64,6 +64,13 @@ function fmtWhole(value) {
   }).format(value);
 }
 
+function fmtCompact(value, digits = 3) {
+  if (!Number.isFinite(value)) return "-";
+  return new Intl.NumberFormat("ms-MY", {
+    maximumFractionDigits: digits,
+  }).format(value);
+}
+
 function calcLeg(name, slingLengthM, horizontalM, verticalPerLegKg, effectiveWllKg) {
   const heightSquared = slingLengthM ** 2 - horizontalM ** 2;
   const heightM = heightSquared >= 0 ? Math.sqrt(heightSquared) : NaN;
@@ -483,6 +490,13 @@ function LiftingVisual({ input, result, setValue, setSlingLength }) {
           <path className="dimension" d="M130 338 L228 404" markerEnd="url(#arrow)" />
           <path className="dimension" d="M228 404 L130 338" markerEnd="url(#arrow)" />
           <text className="dimensionText" x="92" y="390">d = {fmt(input.widthM, 3)} m</text>
+
+          <g className="dimensionSummary" aria-label="Nilai input dekat arrow">
+            <rect x="115" y="452" width="670" height="52" rx="14" />
+            <text x="246" y="480">L = {fmtCompact(input.lengthM)} <tspan>m</tspan></text>
+            <text x="444" y="480">D = {fmtCompact(input.widthM)} <tspan>m</tspan></text>
+            <text x="650" y="480">WLL = {fmtWhole(input.wllKg)} <tspan>kg</tspan></text>
+          </g>
 
           <text className="slingLabel" x="245" y="223">S1</text>
           <text className="slingLabel" x="625" y="223">S2</text>

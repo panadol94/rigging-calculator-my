@@ -356,6 +356,7 @@ input[type="number"] {
 }
 
 .dimensionText,
+.dimensionSummary text,
 .slingLabel,
 .hookLabel,
 .loadLabel {
@@ -367,6 +368,24 @@ input[type="number"] {
 .dimensionText {
   display: none;
   font-size: 18px;
+}
+
+.dimensionSummary rect {
+  fill: rgba(248, 251, 252, 0.96);
+  stroke: rgba(38, 55, 68, 0.18);
+  stroke-width: 2;
+}
+
+.dimensionSummary text {
+  dominant-baseline: middle;
+  font-size: 27px;
+  letter-spacing: 0;
+  text-anchor: middle;
+}
+
+.dimensionSummary tspan {
+  font-size: 19px;
+  font-weight: 900;
 }
 
 .slingLabel {
@@ -462,6 +481,7 @@ input[type="number"] {
 .containerInput {
   bottom: 5%;
   column-gap: clamp(10px, 3vw, 28px);
+  display: none;
   grid-template-columns: repeat(3, max-content);
   left: 50%;
   transform: translateX(-50%);
