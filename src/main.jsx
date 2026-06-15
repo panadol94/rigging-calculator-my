@@ -255,14 +255,18 @@ function CalcSectionTitle({ title, note }) {
 
 function NumberLegend({ input, result, sampleLeg }) {
   const items = [
-    ["L", `${fmt(input.lengthM, 3)} m`, "jarak kiri kanan lifting point"],
-    ["D", `${fmt(input.widthM, 3)} m`, "jarak depan belakang lifting point"],
-    ["S", `${fmt(sampleLeg.slingLengthM, 3)} m`, `panjang ${sampleLeg.name}`],
-    ["R", `${fmt(result.horizontalM, 3)} m`, "jarak mendatar dari hook ke point bawah"],
-    ["H", `${fmt(sampleLeg.heightM, 3)} m`, "tinggi hook dari point bawah"],
-    ["WLL", `${fmtWhole(input.wllKg)} kg`, "limit asal satu sling"],
-    ["Hitch", `x ${fmt(result.hitch.factor, 2)}`, "factor ikut cara ikat sling"],
-    ["sin", `${fmt(sampleLeg.sinTheta, 4)}`, "nilai calculator untuk degree sling"],
+    ["L", `${fmt(input.lengthM, 3)} m`, "meter", "jarak kiri kanan lifting point"],
+    ["D", `${fmt(input.widthM, 3)} m`, "meter", "jarak depan belakang lifting point"],
+    ["S", `${fmt(sampleLeg.slingLengthM, 3)} m`, "meter", `panjang ${sampleLeg.name}`],
+    ["R", `${fmt(result.horizontalM, 3)} m`, "meter", "jarak mendatar dari hook ke point bawah"],
+    ["H", `${fmt(sampleLeg.heightM, 3)} m`, "meter", "tinggi hook dari point bawah"],
+    ["Load", `${fmtWhole(input.loadKg)} kg`, "kilogram", "berat barang/container"],
+    ["Rigging", `${fmtWhole(input.riggingKg)} kg`, "kilogram", "berat hook, shackle dan gear"],
+    ["Per sling", `${fmtWhole(result.verticalPerLegKg)} kg`, "kilogram", "beban satu sling sebelum angle"],
+    ["Tension", `${fmtWhole(sampleLeg.tensionKg)} kg`, "kilogram", `beban sebenar ${sampleLeg.name} selepas angle`],
+    ["WLL", `${fmtWhole(input.wllKg)} kg`, "kilogram", "limit asal satu sling"],
+    ["Hitch", `x ${fmt(result.hitch.factor, 2)}`, "tiada unit", "factor ikut cara ikat sling"],
+    ["sin", `${fmt(sampleLeg.sinTheta, 4)}`, "tiada unit", "nilai calculator untuk degree sling"],
   ];
 
   return (
@@ -270,13 +274,15 @@ function NumberLegend({ input, result, sampleLeg }) {
       <div>
         <p className="eyebrow">Maksud Angka</p>
         <h3>Angka ni datang dari input dan diagram</h3>
+        <p className="legendHint">m = meter, kg = kilogram. Nombor sin dan hitch tiada unit.</p>
       </div>
       <dl>
-        {items.map(([label, value, note]) => (
+        {items.map(([label, value, unit, note]) => (
           <div key={label}>
             <dt>{label}</dt>
             <dd>
               <strong>{value}</strong>
+              <em>Unit: {unit}</em>
               <span>{note}</span>
             </dd>
           </div>
@@ -369,19 +375,19 @@ function CalculatorGuide({ input, result }) {
       <ol className="calcLines">
         <CalcSectionTitle
           title="Detail tekan calculator"
-          note="Bahagian ini untuk semak nombor satu persatu. Nota bawah formula explain angka itu apa."
+          note="Bahagian ini untuk semak nombor satu persatu. Setiap nota bagitahu angka itu kg, meter, degree atau tiada unit."
         />
         <CalcLine
           label="1. Berat total"
           keys={`${fmtWhole(input.loadKg)} + ${fmtWhole(input.riggingKg)} =`}
           answer={`${fmtWhole(result.totalKg)} kg`}
-          help={`${fmtWhole(input.loadKg)} kg ialah berat load, ${fmtWhole(input.riggingKg)} kg ialah berat rigging.`}
+          help={`${fmtWhole(input.loadKg)} kg = berat load. ${fmtWhole(input.riggingKg)} kg = berat rigging. Jawapan juga dalam kg.`}
         />
         <CalcLine
           label="2. Beban 1 sling"
           keys={`${fmtWhole(result.totalKg)} / 4 =`}
           answer={`${fmtWhole(result.verticalPerLegKg)} kg`}
-          help={`4 sebab setup ini guna 4 sling. Ini belum masuk angle lagi.`}
+          help={`${fmtWhole(result.totalKg)} kg dibahagi 4 sling. Jawapan ${fmtWhole(result.verticalPerLegKg)} kg ialah beban satu sling sebelum angle.`}
         />
 
         <CalcSectionTitle
@@ -392,25 +398,25 @@ function CalculatorGuide({ input, result }) {
           label="3. Jarak bawah R"
           keys={`√((${fmt(input.lengthM, 3)} x ${fmt(input.lengthM, 3)}) + (${fmt(input.widthM, 3)} x ${fmt(input.widthM, 3)})) =`}
           answer={`${fmt(result.horizontalM, 3)} m`}
-          help={`${fmt(input.lengthM, 3)} ialah L, ${fmt(input.widthM, 3)} ialah D. R ialah jarak bawah dari tengah ke lifting point.`}
+          help={`${fmt(input.lengthM, 3)} m = L. ${fmt(input.widthM, 3)} m = D. R keluar dalam meter: ${fmt(result.horizontalM, 3)} m.`}
         />
         <CalcLine
           label="4. Tinggi sling H"
           keys={`√((${fmt(sampleLeg.slingLengthM, 3)} x ${fmt(sampleLeg.slingLengthM, 3)}) - (${fmt(result.horizontalM, 3)} x ${fmt(result.horizontalM, 3)})) =`}
           answer={`${fmt(sampleLeg.heightM, 3)} m`}
-          help={`${fmt(sampleLeg.slingLengthM, 3)} ialah S panjang sling, ${fmt(result.horizontalM, 3)} ialah R jarak bawah.`}
+          help={`${fmt(sampleLeg.slingLengthM, 3)} m = S panjang sling. ${fmt(result.horizontalM, 3)} m = R jarak bawah. H keluar dalam meter.`}
         />
         <CalcLine
           label="5. Cari degree"
           keys={`${fmt(sampleLeg.heightM, 3)} / ${fmt(sampleLeg.slingLengthM, 3)} =`}
           answer={fmt(sampleLeg.sinAngle, 4)}
-          help={`${fmt(sampleLeg.heightM, 3)} ialah H tinggi sling, ${fmt(sampleLeg.slingLengthM, 3)} ialah S panjang sling.`}
+          help={`${fmt(sampleLeg.heightM, 3)} m = H tinggi sling. ${fmt(sampleLeg.slingLengthM, 3)} m = S panjang sling. H / S jadi nombor tanpa unit.`}
         />
         <CalcLine
           label="Tekan SHIFT SIN"
           keys={`SHIFT SIN (${fmt(sampleLeg.sinAngle, 4)}) =`}
           answer={`${fmt(sampleLeg.angleDeg, 2)} deg`}
-          help={`${fmt(sampleLeg.sinAngle, 4)} ialah hasil H / S. SHIFT SIN tukar nombor itu jadi degree.`}
+          help={`${fmt(sampleLeg.sinAngle, 4)} tiada unit. SHIFT SIN tukar nombor itu jadi degree: ${fmt(sampleLeg.angleDeg, 2)} deg.`}
         />
 
         <CalcSectionTitle
@@ -421,7 +427,7 @@ function CalculatorGuide({ input, result }) {
           label={`6. Tension ${sampleLeg.name}`}
           keys={`${fmtWhole(result.verticalPerLegKg)} / sin(${fmt(sampleLeg.angleDeg, 2)}) =`}
           answer={`${fmtWhole(sampleLeg.tensionKg)} kg`}
-          help={`${fmtWhole(result.verticalPerLegKg)} kg ialah beban 1 sling. ${fmt(sampleLeg.angleDeg, 2)} deg ialah angle tadi.`}
+          help={`${fmtWhole(result.verticalPerLegKg)} kg = beban 1 sling. ${fmt(sampleLeg.angleDeg, 2)} deg = angle tadi. Jawapan tension dalam kg.`}
         />
         <CalcLine
           label="Dalam tan"
@@ -440,7 +446,7 @@ function CalculatorGuide({ input, result }) {
             label={`${index + 1}. ${leg.name}`}
             keys={`${fmtWhole(result.verticalPerLegKg)} / sin(${fmt(leg.angleDeg, 2)}) =`}
             answer={`${fmt(leg.angleDeg, 1)} deg | ${fmtWhole(leg.tensionKg)} kg`}
-            help={`${fmt(leg.angleDeg, 1)} deg ialah angle ${leg.name}, ${fmtWhole(leg.tensionKg)} kg ialah tension sebenar ${leg.name}.`}
+            help={`${fmt(leg.angleDeg, 1)} deg = angle ${leg.name}. ${fmtWhole(leg.tensionKg)} kg = tension sebenar ${leg.name}.`}
           />
         ))}
 
@@ -452,7 +458,7 @@ function CalculatorGuide({ input, result }) {
           label="7. WLL selepas hitch"
           keys={`${fmtWhole(input.wllKg)} x ${fmt(result.hitch.factor, 2)} =`}
           answer={`${fmtWhole(result.effectiveWllKg)} kg`}
-          help={`${fmtWhole(input.wllKg)} kg ialah WLL asal sling. ${fmt(result.hitch.factor, 2)} ialah hitch factor (${result.hitch.label}).`}
+          help={`${fmtWhole(input.wllKg)} kg = WLL asal sling. ${fmt(result.hitch.factor, 2)} tiada unit, dia hitch factor (${result.hitch.label}).`}
         />
         <CalcLine
           label="Compare"

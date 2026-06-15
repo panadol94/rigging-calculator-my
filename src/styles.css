@@ -778,6 +778,14 @@ input[type="number"] {
   margin-bottom: 0;
 }
 
+.legendHint {
+  color: #526872;
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.35;
+  margin: 6px 0 0;
+}
+
 .numberLegend .eyebrow {
   margin-bottom: 4px;
 }
@@ -824,6 +832,14 @@ input[type="number"] {
   color: #0f5c4f;
   font-size: 0.95rem;
   overflow-wrap: anywhere;
+}
+
+.numberLegend dd em {
+  color: #102c57;
+  font-size: 0.76rem;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 1.25;
 }
 
 .numberLegend dd span {
