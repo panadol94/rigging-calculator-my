@@ -717,7 +717,7 @@ input[type="number"] {
 .sheetSmallText,
 .sheetCallout,
 .sheetDimText {
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .containerText {
@@ -811,9 +811,9 @@ input[type="number"] {
 }
 
 .sheetRiggingInput {
-  left: 50%;
+  left: 54%;
   top: 13%;
-  transform: translateX(-50%);
+  transform: none;
 }
 
 .sheetRiggingInput::before {
@@ -824,8 +824,8 @@ input[type="number"] {
 }
 
 .sheetSlingInput1 {
-  left: 6%;
-  top: 33%;
+  left: 5%;
+  top: 31%;
 }
 
 .sheetSlingInput1::before,
@@ -835,8 +835,8 @@ input[type="number"] {
 }
 
 .sheetSlingInput2 {
-  right: 6%;
-  top: 33%;
+  right: 5%;
+  top: 28%;
 }
 
 .sheetSlingInput2::before,
@@ -846,13 +846,13 @@ input[type="number"] {
 }
 
 .sheetSlingInput3 {
-  left: 8%;
-  top: 50%;
+  left: 7%;
+  top: 54%;
 }
 
 .sheetSlingInput4 {
-  right: 8%;
-  top: 50%;
+  right: 6%;
+  top: 56%;
 }
 
 .sheetLengthInput {
@@ -1289,6 +1289,48 @@ dd {
   .containerInput {
     grid-template-columns: repeat(3, minmax(0, auto));
   }
+
+  .drawingFrame .leader,
+  .drawingFrame .sheetCallout {
+    display: none;
+  }
+
+  .drawingFrame svg {
+    min-height: 360px;
+  }
+
+  .containerText {
+    font-size: 24px;
+  }
+
+  .sheetRiggingInput {
+    top: 10%;
+  }
+
+  .sheetSlingInput1 {
+    left: 4%;
+    top: 30%;
+  }
+
+  .sheetSlingInput2 {
+    right: 4%;
+    top: 30%;
+  }
+
+  .sheetSlingInput3 {
+    left: 5%;
+    top: 54%;
+  }
+
+  .sheetSlingInput4 {
+    right: 4%;
+    top: 54%;
+  }
+
+  .sheetWllInput {
+    right: 3%;
+    top: 78%;
+  }
 }
 
 @media (max-width: 560px) {
@@ -1338,11 +1380,39 @@ dd {
   }
 
   .drawingFrame svg {
-    min-height: 300px;
+    min-height: 360px;
   }
 
   .sheetInputsOverlay {
     display: block;
+  }
+
+  .sheetSmallText,
+  .sheetDimText {
+    font-size: 17px;
+  }
+
+  .diagramInput span:first-child {
+    font-size: 0.7rem;
+  }
+
+  .diagramValue input {
+    font-size: 0.86rem;
+    min-width: 5.5ch;
+    width: 5.5ch;
+  }
+
+  .diagramValue b {
+    font-size: 0.62rem;
+  }
+
+  .sheetLoadInput {
+    top: 70%;
+  }
+
+  .sheetWidthInput {
+    left: 3%;
+    top: 82%;
   }
 
   .sheetInputGrid {
